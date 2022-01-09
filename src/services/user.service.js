@@ -77,7 +77,7 @@ class UserService {
     }
 
     async _getUserByEmail(email) {
-        return await UserModel.findOne({where: {email}});
+        return UserModel.findOne({where: {email}});
     }
 
 }

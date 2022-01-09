@@ -11,6 +11,11 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
+
+            value: {
+                type: DataTypes.STRING,
+                allowNull: false
+            }
         },
         {
             tableName: 'statuses',
