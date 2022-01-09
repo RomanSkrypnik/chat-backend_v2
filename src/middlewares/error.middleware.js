@@ -6,7 +6,7 @@ module.exports = (err, req, res, next) => {
     }
 
     if (process.env.APP_DEBUG) {
-        return err;
+        console.log(err);
     }
 
     return res.status(500).json({message: 'Server error'});

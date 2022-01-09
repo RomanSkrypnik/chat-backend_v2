@@ -5,8 +5,8 @@ const { body } = require('express-validator');
 
 // == POST routes ==
 router.post('/register',
-    body('data.email').isEmail(),
-    body('data.password').isLength({min: 3, max: 32}),
+    body('email').isEmail(),
+    body('password').isLength({min: 3, max: 32}),
     userController.register);
 router.post('/login', userController.login);
 router.post('/logout', userController.logout);

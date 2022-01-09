@@ -17,13 +17,10 @@ class UserService {
 
         const password = await bcrypt.hash(data.password, 3);
         const activationLink = uuid.v4();
-        const user = await UserModel.create({...data, password, activationLink});
+        await UserModel.create({...data, password, activationLink});
 
-        await mailService.sendActivationMail(data.email, `${process.env.API_URL}/api/activate/${activationLink}`);
-
-        const userDto = new UserDto(user);
-        const tokens = tokenService.generateTokens({...userDto});
-        return {tokens, user: userDto};
+        // await mailService.sendActivationMail(data.email, `${process.env.API_URL}/api/activate/${activationLink}`);
+        return {message: "User is successfully registered"};
     }
 
     async login(data) {
@@ -59,13 +56,14 @@ class UserService {
         if (!refreshToken) {
             throw ApiException.UnathorizedError();
         }
+
         const userData = tokenService.validateRefreshToken(refreshToken);
 
         if (!userData) {
             throw ApiException.UnathorizedError();
         }
 
-        const user = this._getUserByEmail(userData.email);
+        const user = await this._getUserByEmail(userData.email);
         const userDto = new UserDto(user);
         const tokens = tokenService.generateTokens({...userDto});
 
