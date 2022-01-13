@@ -1,7 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
     const Status = require('./status.model')(sequelize, DataTypes);
 
-    return sequelize.define('User', {
+    const User =  sequelize.define('User', {
 
             id: {
                 type: DataTypes.INTEGER,
@@ -37,17 +37,19 @@ module.exports = (sequelize, DataTypes) => {
                 defaultValue: false,
             },
 
-            statusId: {
-                type: DataTypes.INTEGER(11).UNSIGNED,
-                references: {
-                    model: Status,
-                    key: 'id',
-                },
-                defaultValue: 1,
-            },
-
         },
         {
             tableName: 'users',
-        })
+        });
+
+    User.belongsTo(Status, {
+        as: 'status',
+        foreignKey: {
+            name:'statusId',
+            defaultValue: 1,
+            allowNull: false
+        }
+    });
+
+    return User;
 };

@@ -1,7 +1,7 @@
 const UserModel = require('../db/connection').users;
+const StatusModel = require('../db/connection').statuses;
 const bcrypt = require('bcrypt');
 const uuid = require('uuid');
-const mailService = require('./mail.service');
 const tokenService = require('./token.service');
 const UserDto = require('../dtos/user.dto');
 const ApiException = require('../exceptions/api.exception');
@@ -75,7 +75,13 @@ class UserService {
     }
 
     async _getUserByEmail(email) {
-        return UserModel.findOne({where: {email}});
+        return await UserModel.findOne({
+            where: {email},
+            include: {
+                model: StatusModel,
+                as: 'status'
+            }
+        });
     }
 
 }

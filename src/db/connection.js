@@ -13,6 +13,8 @@ const sequelize = new Sequelize(database, username, password, {
     logging
 });
 
+
+
 module.exports = {
     Sequelize,
     sequelize,

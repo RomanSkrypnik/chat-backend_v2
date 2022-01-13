@@ -16,6 +16,7 @@ class UserController {
             const response = await userService.registration(formData);
             return res.json(response);
         } catch (e) {
+            console.log(e);
             next(e);
         }
     }
@@ -56,6 +57,7 @@ class UserController {
             const userData = await userService.refresh(refreshToken);
             return res.json(userData);
         } catch (e) {
+            console.log(e);
             next(e);
         }
     }

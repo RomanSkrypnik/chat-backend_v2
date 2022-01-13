@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const errorMiddleware = require('./src/middlewares/error.middleware');
 const routes = require('./src/routes/');
 const db = require('./src/db/connection');
+const {logger} = require("sequelize/lib/utils/logger");
 
 const PORT = process.env.PORT || 3000;
 
