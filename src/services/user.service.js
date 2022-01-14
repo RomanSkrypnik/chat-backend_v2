@@ -9,7 +9,7 @@ const ApiException = require('../exceptions/api.exception');
 class UserService {
 
     async registration(data) {
-        const candidate = await this._getUserByEmail(data.email);
+        const candidate = await this.getUserByEmail(data.email);
 
         if (candidate) {
             throw ApiException.BadRequest(`User with such email already exists`);
@@ -24,7 +24,7 @@ class UserService {
     }
 
     async login(data) {
-        const user = await this._getUserByEmail(data.email);
+        const user = await this.getUserByEmail(data.email);
 
         if (!user) {
             throw ApiException.BadRequest('User is not found');
@@ -63,7 +63,7 @@ class UserService {
             throw ApiException.UnathorizedError();
         }
 
-        const user = await this._getUserByEmail(userData.email);
+        const user = await this.getUserByEmail(userData.email);
         const userDto = new UserDto(user);
         const tokens = tokenService.generateTokens({...userDto});
 
@@ -74,7 +74,7 @@ class UserService {
         return await UserModel.findAll();
     }
 
-    async _getUserByEmail(email) {
+    async getUserByEmail(email) {
         return await UserModel.findOne({
             where: {email},
             include: {

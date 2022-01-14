@@ -20,4 +20,6 @@ module.exports = {
     sequelize,
     statuses: require('../models/status.model')(sequelize, DataTypes),
     users: require('../models/user.model')(sequelize, DataTypes),
+    friends: require('../models/friend.model')(sequelize, DataTypes),
+    followers: require('../models/follower.model')(sequelize, DataTypes),
 };
