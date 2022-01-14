@@ -1,5 +1,7 @@
 const FriendModel = require('../db/connection').friends;
 const userService = require("./user.service");
+const UserDto = require('../dtos/user.dto');
+const UserModel = require('../db/connection').users;
 const ApiException = require("../exceptions/api.exception");
 const { Op } = require('sequelize');
 
@@ -20,10 +22,10 @@ class FriendService {
             }
         });
 
-        // friendsRelations
-        //     .filter(relation => relation.user1Id);
-
-
+        return friendsRelations.map(async relation => {
+            let id = relation.user1Id === user.id ? relation.user2Id : relation.user1Id;
+            return await UserModel.findOne({where: {id}});
+        })
     }
 
     async addFriend(sender, receiver) {
