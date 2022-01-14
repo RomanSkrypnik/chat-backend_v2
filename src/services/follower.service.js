@@ -70,8 +70,8 @@ class FollowerService {
     }
 
     async addFollower(sender, receiver) {
-        const fields = await this._getSubscriptionFields(sender.email, receiver.email);
-        await FollowerModel.destroy({where: fields});
+        // TODO :: Vulnerability
+        await this._getSubscriptionFields(sender.email, receiver.email);
         return await friendService.addFriend(sender, receiver);
     }
 
