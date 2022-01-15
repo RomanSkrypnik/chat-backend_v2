@@ -1,5 +1,6 @@
 const FriendModel = require('../db/connection').friends;
 const userService = require("./user.service");
+const messageService = require("./message.service");
 const UserDto = require('../dtos/user.dto');
 const UserModel = require('../db/connection').users;
 const StatusModel = require('../db/connection').statuses;
@@ -10,7 +11,10 @@ class FriendService {
 
     async getFriends(user) {
         const friends = await this._getFriends(user);
-        return friends.map(friend => new UserDto(friend));
+        return Promise.all(friends.map(async friend => {
+            const lastMessage = await messageService.getMessages(user, friend, 0, 1);
+            return {friend: new UserDto(friend), lastMessage};
+        }));
     }
 
     async getFriendsBySearch(user, search) {
