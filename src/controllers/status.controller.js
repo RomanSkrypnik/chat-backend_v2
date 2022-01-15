@@ -13,8 +13,8 @@ class StatusController {
 
     async changeStatus(req, res, next) {
         try {
-           const { email, status } = req.body;
-           await statusService.changeUserStatus(email, status);
+           const {status} = req.body;
+           await statusService.changeUserStatus(req.user, status);
            return res.json({message: 'Status is changed'});
         } catch(e) {
             next(e);

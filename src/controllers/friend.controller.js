@@ -4,18 +4,29 @@ class FriendController {
 
     async friends(req, res, next) {
         try {
-            const {email} = req.body;
-            const friends = await friendService.getFriends(email);
+            const friends = await friendService.getFriends(req.user);
             return res.send(friends);
         } catch (e) {
             next(e);
         }
     }
 
-    removeFriend(req, res, next) {
+    async searchFriends(req, res, next) {
         try {
+            const {search} = req.body;
+            const friends = await friendService.getFriendsBySearch(req.user, search);
+            return res.json(friends);
+        } catch (e) {
+            next(e);
+        }
+    }
 
-        } catch(e) {
+    async removeFriend(req, res, next) {
+        try {
+            const {hash} = req.body;
+            const user = await friendService.removeFriend(req.user, hash);
+            return res.json(user);
+        } catch (e) {
             next(e);
         }
     }

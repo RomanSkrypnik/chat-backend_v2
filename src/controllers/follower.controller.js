@@ -4,8 +4,7 @@ class FollowerController {
 
     async followings(req, res, next) {
         try {
-            const {email} = req.body;
-            const followings = await followerService.getFollowings(email);
+            const followings = await followerService.getFollowings(req.user);
             return res.json(followings);
         } catch (e) {
             next(e);
@@ -14,19 +13,17 @@ class FollowerController {
 
     async followers(req, res, next) {
         try {
-            const {email} = req.body;
-            const followers = await followerService.getFollowers(email);
+            const followers = await followerService.getFollowers(req.user);
             return res.json(followers);
         } catch(e) {
-            console.log(e);
             next(e);
         }
     }
 
     async follow(req, res, next) {
         try {
-            const {sender, receiver} = req.body;
-            const following = await followerService.createFollow(sender, receiver);
+            const {hash} = req.body;
+            const following = await followerService.createFollow(req.user, hash);
             return res.json(following);
         } catch (e) {
             next(e);
@@ -35,8 +32,8 @@ class FollowerController {
 
     async unfollow(req, res, next) {
         try {
-            const {sender, receiver} = req.body;
-            const following = await followerService.removeFollow(sender, receiver);
+            const {hash} = req.body;
+            const following = await followerService.removeFollow(req.user, hash);
             return res.json(following);
         } catch (e) {
             console.log(e);
@@ -46,8 +43,8 @@ class FollowerController {
 
     async addFollower(req, res, next) {
         try {
-            const {sender, receiver} = req.body;
-            const friend = await followerService.addFollower(sender, receiver);
+            const {hash} = req.body;
+            const friend = await followerService.addFollower(req.user, hash);
             return res.json(friend);
         } catch (e) {
             next(e);

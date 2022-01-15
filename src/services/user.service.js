@@ -2,6 +2,7 @@ const UserModel = require('../db/connection').users;
 const StatusModel = require('../db/connection').statuses;
 const bcrypt = require('bcrypt');
 const uuid = require('uuid');
+const crypto = require('crypto');
 const tokenService = require('./token.service');
 const UserDto = require('../dtos/user.dto');
 const ApiException = require('../exceptions/api.exception');
@@ -9,7 +10,7 @@ const ApiException = require('../exceptions/api.exception');
 class UserService {
 
     async registration(data) {
-        const candidate = await this.getUserByEmail(data.email);
+        const candidate = await UserModel.findOne({where: {email: data.email},});
 
         if (candidate) {
             throw ApiException.BadRequest(`User with such email already exists`);
@@ -17,14 +18,15 @@ class UserService {
 
         const password = await bcrypt.hash(data.password, 3);
         const activationLink = uuid.v4();
-        await UserModel.create({...data, password, activationLink});
+        const hash = crypto.randomBytes(20).toString('hex');
+        await UserModel.create({...data, password, hash, activationLink});
 
         // await mailService.sendActivationMail(data.email, `${process.env.API_URL}/api/activate/${activationLink}`);
         return {message: "User is successfully registered"};
     }
 
     async login(data) {
-        const user = await this.getUserByEmail(data.email);
+        const user = await UserModel.findOne({where: {email: data.email}});
 
         if (!user) {
             throw ApiException.BadRequest('User is not found');
@@ -53,6 +55,7 @@ class UserService {
     }
 
     async refresh(refreshToken) {
+
         if (!refreshToken) {
             throw ApiException.UnathorizedError();
         }
@@ -63,7 +66,7 @@ class UserService {
             throw ApiException.UnathorizedError();
         }
 
-        const user = await this.getUserByEmail(userData.email);
+        const user = await this.getUserByHash(userData.hash);
         const userDto = new UserDto(user);
         const tokens = tokenService.generateTokens({...userDto});
 
@@ -74,14 +77,20 @@ class UserService {
         return await UserModel.findAll();
     }
 
-    async getUserByEmail(email) {
-        return await UserModel.findOne({
-            where: {email},
+    async getUserByHash(hash) {
+        const user = await UserModel.findOne({
+            where: {hash},
             include: {
                 model: StatusModel,
                 as: 'status'
             }
         });
+
+        if (!user) {
+            throw ApiException.BadRequest('User is not found');
+        }
+
+        return user;
     }
 
 }

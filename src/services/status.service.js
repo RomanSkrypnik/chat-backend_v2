@@ -10,13 +10,7 @@ class StatusController {
         return statuses.map(status => new StatusDto(status));
     }
 
-    async changeUserStatus(email, status) {
-        const user = await UserService.getUserByEmail(email);
-
-        if (!user) {
-            ApiException.BadRequest('User is not found');
-        }
-
+    async changeUserStatus(user, status) {
         const foundStatus = await StatusModel.findOne({where: {value: status.value}});
 
         if (!foundStatus) {

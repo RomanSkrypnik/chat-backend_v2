@@ -1,10 +1,11 @@
 const router = require('express').Router();
 const followerController = require('../controllers/follower.controller');
+const AuthMiddleware = require('../middlewares/auth.middleware');
 
-router.get('/followings', followerController.followings);
-router.get('/followers', followerController.followers);
-router.post('/follow', followerController.follow);
-router.post('/unfollow', followerController.unfollow);
-router.post('/add-follower', followerController.addFollower);
+router.get('/followings', AuthMiddleware, followerController.followings);
+router.get('/followers', AuthMiddleware, followerController.followers);
+router.post('/follow', AuthMiddleware, followerController.follow);
+router.post('/unfollow', AuthMiddleware, followerController.unfollow);
+router.post('/add-follower', AuthMiddleware, followerController.addFollower);
 
 module.exports = router;

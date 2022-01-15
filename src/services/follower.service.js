@@ -9,13 +9,7 @@ const { Op } = require("sequelize");
 
 class FollowerService {
 
-    async getFollowings(email) {
-        const user = await userService.getUserByEmail(email);
-
-        if (!user) {
-            throw ApiException.BadRequest('User is not found');
-        }
-
+    async getFollowings(user) {
         const followers = await FollowerModel.findAll({
             where: {user1Id: user.id},
             include: {
@@ -30,13 +24,7 @@ class FollowerService {
         return followers.map(follower => new UserDto(follower.receiver));
     }
 
-    async getFollowers(email) {
-        const user = await userService.getUserByEmail(email);
-
-        if (!user) {
-            throw ApiException.BadRequest('User is not found');
-        }
-
+    async getFollowers(user) {
         const followers = await FollowerModel.findAll({
             where: {user2Id: user.id},
             include: {
@@ -51,15 +39,16 @@ class FollowerService {
         return followers.map(follower => new UserDto(follower.sender));
     }
 
-    async createFollow(sender, receiver) {
-        const fields = await this._getSubscriptionFields(sender.email, receiver.email);
+    async createFollow(user, followingHash) {
+        const fields = await this._getSubscriptionFields(user, followingHash);
         return FollowerModel.create(fields);
     }
 
-    async removeFollow(sender, receiver) {
-        const fields = await this._getSubscriptionFields(sender.email, receiver.email);
+    async removeFollow(user, followingHash) {
+        const fields = await this._getSubscriptionFields(user, followingHash);
         const reversedFields = {user1Id: fields.user2Id, user2Id: fields.user1Id};
-        return FollowerModel.destroy({
+
+        return await FollowerModel.destroy({
             where: {
                 [Op.or]: [
                     fields,
@@ -69,23 +58,28 @@ class FollowerService {
         });
     }
 
-    async addFollower(sender, receiver) {
-        // TODO :: Vulnerability
-        await this._getSubscriptionFields(sender.email, receiver.email);
-        return await friendService.addFriend(sender, receiver);
+    async addFollower(user, followerHash) {
+        const sender = await UserModel.findOne({where: {hash: followerHash}});
+        const followerRelation = await FollowerModel.findOne({where: {user1Id: sender.id, user2Id: user.id}});
+
+        if (!followerRelation) {
+            throw ApiException.BadRequest('Sender cannot add his followings to friends');
+        }
+
+        await this.removeFollow(user, followerHash);
+        return await friendService.addFriend(user, followerHash);
     }
 
-    async _getSubscriptionFields(senderEmail, receiverEmail) {
-        const foundSender = await userService.getUserByEmail(senderEmail);
-        const foundReceiver = await userService.getUserByEmail(receiverEmail);
+    async _getSubscriptionFields(user, hash) {
+        const secondUser = await userService.getUserByHash(hash);
 
-        if (!foundSender || !foundReceiver) {
+        if (!secondUser) {
             throw ApiException.BadRequest('Sender or receiver is not found');
         }
 
         return {
-            user1Id: foundSender.id,
-            user2Id: foundReceiver.id,
+            user1Id: user.id,
+            user2Id: secondUser.id,
         }
     }
 

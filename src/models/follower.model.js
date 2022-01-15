@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
 
     Follower.belongsTo(User, {
         as: 'sender',
+        onDelete: 'cascade',
         foreignKey: {
             name: 'user1Id',
             allowNull: false
@@ -25,6 +26,7 @@ module.exports = (sequelize, DataTypes) => {
 
     Follower.belongsTo(User, {
         as: 'receiver',
+        onDelete: 'cascade',
         foreignKey: {
             name: 'user2Id',
             allowNull: false
@@ -32,4 +34,4 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     return Follower
-}
+};
