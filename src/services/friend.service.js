@@ -60,6 +60,7 @@ class FriendService {
                 {
                     model: UserModel,
                     as: 'sender',
+                    attributes: ['id', 'hash', 'username', 'isActivated'],
                     include: {
                         model: StatusModel,
                         as: 'status'
@@ -68,9 +69,10 @@ class FriendService {
                 {
                     model: UserModel,
                     as: 'receiver',
+                    attributes: ['id', 'hash', 'username', 'isActivated'],
                     include: {
                         model: StatusModel,
-                        as: 'status'
+                        as: 'status',
                     }
                 }
             ]

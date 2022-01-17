@@ -12,11 +12,19 @@ class MessageService {
         const condition = this._getCondition(user, receiver);
         const relation = await FriendModel.findOne({where: {[Op.or]: condition}});
 
-        return MessageModel.create({
+        const newMessage =  await MessageModel.create({
             text: message.text,
             relationId: relation.id,
             userId: user.id,
         });
+
+        return MessageModel.findByPk(newMessage.id, {
+            attributes: ['id', 'text', 'createdAt', 'updatedAt'],
+            include: {
+                attributes: ['id', 'username', 'hash'],
+                model: UserModel,
+                as: 'sender',
+            }});
     }
 
     async getMessages(firstUser, secondUser, offset, limit) {
@@ -24,6 +32,7 @@ class MessageService {
         const relation = await FriendModel.findOne({where: {[Op.or]: condition}});
 
         return MessageModel.findAll({
+            attributes: ['id', 'text', 'createdAt', 'updatedAt'],
             where: {
                 relationId: relation.id
             },
@@ -35,6 +44,7 @@ class MessageService {
                 {
                     model: UserModel,
                     as: 'sender',
+                    attributes: ['id', 'hash', 'username', 'isActivated'],
                 }
             ],
             limit,

@@ -7,6 +7,7 @@ class FriendController {
             const friends = await friendService.getFriends(req.user);
             return res.send(friends);
         } catch (e) {
+            console.log(e);
             next(e);
         }
     }

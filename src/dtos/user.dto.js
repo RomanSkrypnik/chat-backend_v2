@@ -1,6 +1,7 @@
 const StatusDto = require('./status.dto');
 module.exports = class UserDto {
     id;
+    hash;
     status;
     username;
     isActivated;
