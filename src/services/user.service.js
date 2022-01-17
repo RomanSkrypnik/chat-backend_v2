@@ -26,7 +26,14 @@ class UserService {
     }
 
     async login(data) {
-        const user = await UserModel.findOne({where: {email: data.email}});
+        const user = await UserModel.findOne(
+            {
+                where: {email: data.email},
+                include: {
+                    model: StatusModel,
+                    as: 'status'
+                }
+            });
 
         if (!user) {
             throw ApiException.BadRequest('User is not found');
