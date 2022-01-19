@@ -34,6 +34,9 @@ class UserController {
 
     async logout(req, res, next) {
         try {
+            const {hash} = req.user;
+            const user = await userService.getUserByHash(hash);
+            user.update({isOnline: false});
             res.clearCookie('refreshToken');
             return res.json({message: 'Logged out'});
         } catch (e) {

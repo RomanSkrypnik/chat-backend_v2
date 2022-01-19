@@ -28,13 +28,13 @@ class MessageService {
             }});
     }
 
-    async getMessages(firstUser, secondUser, offset, limit) {
+    async getMessages(firstUser, secondUser, offset, limit, order = 'ASC') {
         const condition = this._getCondition(firstUser, secondUser);
         const relation = await FriendModel.findOne({where: {[Op.or]: condition}});
 
         return MessageModel.findAll({
             attributes: ['id', 'text', 'createdAt', 'updatedAt'],
-            order: sequelize.literal('createdAt ASC'),
+            order: sequelize.literal(`createdAt ${order}`),
             where: {
                 relationId: relation.id
             },

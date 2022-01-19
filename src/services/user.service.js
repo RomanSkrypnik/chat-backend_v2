@@ -45,6 +45,7 @@ class UserService {
             throw ApiException.BadRequest('Wrong password');
         }
 
+        user.update({isOnline: true});
         const userDto = new UserDto(user);
         const tokens = tokenService.generateTokens({...userDto});
         return {tokens, user: userDto};

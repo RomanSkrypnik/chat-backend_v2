@@ -4,7 +4,7 @@ class FriendController {
 
     async friends(req, res, next) {
         try {
-            const friends = await friendService.getFriends(req.user);
+            const friends = await friendService.getFriendsWithMessages(req.user);
             return res.send(friends);
         } catch (e) {
             console.log(e);

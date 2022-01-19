@@ -29,8 +29,6 @@ const io = new Server(httpServer, {
     }
 });
 
-global.io = io;
-
 handleSockets(io);
 
 httpServer.listen(PORT, () => console.log(`Listening to port ${PORT}`));

@@ -42,6 +42,10 @@ module.exports = (sequelize, DataTypes) => {
                 defaultValue: false,
             },
 
+            isOnline: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false,
+            }
         },
         {
             tableName: 'users',

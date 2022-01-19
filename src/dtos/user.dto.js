@@ -4,6 +4,7 @@ module.exports = class UserDto {
     hash;
     status;
     username;
+    isOnline;
     isActivated;
 
     constructor(model) {
@@ -11,6 +12,7 @@ module.exports = class UserDto {
         this.hash = model.hash;
         this.username = model.username;
         this.isActivated = model.isActivated;
+        this.isOnline = model.isOnline;
         this.status = model.status ? new StatusDto(model.status) : null;
     }
 

@@ -9,16 +9,16 @@ const { Op } = require('sequelize');
 
 class FriendService {
 
-    async getFriends(user) {
-        const friends = await this._getFriends(user);
+    async getFriendsWithMessages(user) {
+        const friends = await this.getFriends(user);
         return Promise.all(friends.map(async friend => {
-            const lastMessage = await messageService.getMessages(user, friend, 0, 1);
-            return {friend: new UserDto(friend), lastMessage};
+            const lastMessage = await messageService.getMessages(user, friend, 0, 1, 'DESC');
+            return {friend: new UserDto(friend), lastMessage: lastMessage[0]};
         }));
     }
 
     async getFriendsBySearch(user, search) {
-        const friends = await this._getFriends(user);
+        const friends = await this.getFriends(user);
         return friends.map(friend => friend.username.toLowerCase().includes(search) && new UserDto(friend));
     }
 
@@ -50,7 +50,7 @@ class FriendService {
         }
     }
 
-    async _getFriends(user) {
+    async getFriends(user) {
         const condition = [{user1Id: user.id}, {user2Id: user.id}];
         const friendsRelations = await FriendModel.findAll({
             where: {
@@ -60,7 +60,7 @@ class FriendService {
                 {
                     model: UserModel,
                     as: 'sender',
-                    attributes: ['id', 'hash', 'username', 'isActivated'],
+                    attributes: ['id', 'hash', 'username', 'isActivated', 'isOnline'],
                     include: {
                         model: StatusModel,
                         as: 'status'
@@ -69,7 +69,7 @@ class FriendService {
                 {
                     model: UserModel,
                     as: 'receiver',
-                    attributes: ['id', 'hash', 'username', 'isActivated'],
+                    attributes: ['id', 'hash', 'username', 'isActivated', 'isOnline'],
                     include: {
                         model: StatusModel,
                         as: 'status',
