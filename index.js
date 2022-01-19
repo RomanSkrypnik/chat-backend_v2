@@ -6,7 +6,9 @@ const cookieParser = require('cookie-parser');
 const errorMiddleware = require('./src/middlewares/error.middleware');
 const routes = require('./src/routes/');
 const db = require('./src/db/connection');
-const {logger} = require("sequelize/lib/utils/logger");
+const { createServer } = require("http");
+const { Server } = require("socket.io");
+const handleSockets = require('./src/utils/socket.utils');
 
 const PORT = process.env.PORT || 3000;
 
@@ -19,9 +21,19 @@ app.use(express.json());
 app.use('/api', routes);
 app.use(errorMiddleware);
 
-app.listen(PORT, () => {
-    console.log(`Listening to port ${PORT}`);
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+    cors: {
+        origin: process.env.CLIENT_URL,
+        methods: ["GET", "POST"],
+    }
 });
+
+global.io = io;
+
+handleSockets(io);
+
+httpServer.listen(PORT, () => console.log(`Listening to port ${PORT}`));
 
 try {
     db.sequelize.authenticate();

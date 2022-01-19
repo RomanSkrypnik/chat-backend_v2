@@ -1,5 +1,4 @@
 module.exports = class ApiException extends Error {
-
     status;
     errors;
 

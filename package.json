@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@thream/socketio-jwt": "^2.1.1",
     "bcrypt": "^5.0.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
@@ -22,6 +23,8 @@
     "nodemailer": "^6.7.2",
     "nodemon": "^2.0.15",
     "sequelize": "^7.0.0-alpha.4",
+    "socket.io": "^4.4.1",
+    "socketio-jwt": "^4.6.2",
     "uuid": "^8.3.2"
   }
 }

@@ -4,6 +4,7 @@ const MessageModel = require('../db/connection').messages;
 const FileModel = require('../db/connection').files;
 const userService = require('./user.service');
 const { Op } = require('sequelize');
+const sequelize = require('sequelize');
 
 class MessageService {
 
@@ -33,6 +34,7 @@ class MessageService {
 
         return MessageModel.findAll({
             attributes: ['id', 'text', 'createdAt', 'updatedAt'],
+            order: sequelize.literal('createdAt ASC'),
             where: {
                 relationId: relation.id
             },
