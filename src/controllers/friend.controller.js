@@ -14,8 +14,8 @@ class FriendController {
 
     async searchFriends(req, res, next) {
         try {
-            const {search} = req.body;
-            const friends = await friendService.getFriendsBySearch(req.user, search);
+            const {username} = req.body;
+            const friends = await friendService.getFriendsByUsername(req.user, username);
             return res.json(friends);
         } catch (e) {
             next(e);

@@ -17,9 +17,17 @@ class FriendService {
         }));
     }
 
-    async getFriendsBySearch(user, search) {
+    async getFriendsByUsername(user, username) {
         const friends = await this.getFriends(user);
-        return friends.map(friend => friend.username.toLowerCase().includes(search) && new UserDto(friend));
+        return Promise.all(
+            friends
+                .filter(friend => friend.username.toLowerCase().includes(username))
+                .map(async friend => {
+                        const lastMessage = await messageService.getMessages(user, friend, 0, 1, 'DESC');
+                        return {friend: new UserDto(friend), lastMessage: lastMessage[0]};
+                    }
+                )
+        );
     }
 
     async addFriend(user, hash) {
