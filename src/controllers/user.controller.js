@@ -34,9 +34,9 @@ class UserController {
 
     async logout(req, res, next) {
         try {
-            const {hash} = req.user;
+            const { hash } = req.user;
             const user = await userService.getUserByHash(hash);
-            user.update({isOnline: false});
+            await user.update({isOnline: false});
             res.clearCookie('refreshToken');
             return res.json({message: 'Logged out'});
         } catch (e) {
@@ -70,6 +70,16 @@ class UserController {
             const users = await userService.getUsers();
             return res.json(users);
         } catch(e) {
+            next(e);
+        }
+    }
+
+    async usersBySearch(req, res, next) {
+        try {
+            const {search} = req.body;
+            const users = await userService.getUsersBySearch(req.user, search);
+            return res.json(users);
+        } catch (e) {
             next(e);
         }
     }

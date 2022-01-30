@@ -18,7 +18,7 @@ module.exports = (io) => {
         const {hash} = currentSocket.decodedToken;
         const user = await userService.getUserByHash(hash);
         user.update({isOnline: true});
-        sockets.push({...currentSocket.decodedToken, id: currentSocket.id});
+        sockets?.push({...currentSocket.decodedToken, id: currentSocket.id});
 
         currentSocket.on('send-message', async ({hash, message}) => {
             try {

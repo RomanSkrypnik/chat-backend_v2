@@ -4,8 +4,11 @@ const bcrypt = require('bcrypt');
 const uuid = require('uuid');
 const crypto = require('crypto');
 const tokenService = require('./token.service');
+const messageService = require('./message.service');
+const friendService = require('./friend.service');
 const UserDto = require('../dtos/user.dto');
 const ApiException = require('../exceptions/api.exception');
+const {Op} = require('sequelize');
 
 class UserService {
 
@@ -99,6 +102,31 @@ class UserService {
         }
 
         return user;
+    }
+
+    async getUsersBySearch(currentUser, search) {
+
+        if (!search) {
+            return await friendService.getFriendsWithMessages(currentUser);
+        }
+
+        const field = search.startsWith('@') ? 'username' : 'name';
+        const users = await UserModel.findAll({
+            where: {
+                [field]: {
+                    [Op.startsWith]: search
+                }
+            },
+            include: {
+                model: StatusModel,
+                as: 'status'
+            }
+        });
+
+        return Promise.all(users.map(async user => {
+            const lastMessage = await messageService.getMessages(currentUser, user, 0, 1, 'DESC');
+            return {friend: new UserDto(user), lastMessage: lastMessage[0]};
+        }));
     }
 
 }

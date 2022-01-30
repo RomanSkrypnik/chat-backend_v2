@@ -8,7 +8,7 @@ class MessageController {
             const {hash, offset, limit} = req.body;
             const friend = await userService.getUserByHash(hash);
             const messages = await messageService.getMessages(req.user, friend, offset, limit, 'DESC');
-            return res.json(messages.reverse());
+            return res.json(messages?.reverse());
         } catch(e) {
             console.log(e);
             next(e);

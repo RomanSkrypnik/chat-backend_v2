@@ -2,16 +2,19 @@ const UserModel = require('../db/connection').users;
 const FriendModel = require('../db/connection').friends;
 const MessageModel = require('../db/connection').messages;
 const FileModel = require('../db/connection').files;
-const userService = require('./user.service');
 const { Op } = require('sequelize');
-const sequelize = require('sequelize');
+const { sequelize } = require('../db/connection');
 
 class MessageService {
 
     async createMessage(user, hash, message) {
-        const receiver = await userService.getUserByHash(hash);
+        const receiver = await UserModel.findOne({where: {hash: hash}});
         const condition = this._getCondition(user, receiver);
-        const relation = await FriendModel.findOne({where: {[Op.or]: condition}});
+        let relation = await FriendModel.findOne({where: {[Op.or]: condition}});
+
+        if (!relation) {
+            relation = await FriendModel.create({user1Id: user.id, user2Id: receiver.id});
+        }
 
         const newMessage =  await MessageModel.create({
             text: message.text,
@@ -31,6 +34,10 @@ class MessageService {
     async getMessages(firstUser, secondUser, offset, limit, order = 'ASC') {
         const condition = this._getCondition(firstUser, secondUser);
         const relation = await FriendModel.findOne({where: {[Op.or]: condition}});
+
+        if (!relation) {
+            return null;
+        }
 
         return MessageModel.findAll({
             attributes: ['id', 'text', 'createdAt', 'updatedAt'],
