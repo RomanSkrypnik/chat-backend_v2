@@ -125,7 +125,7 @@ class UserService {
 
         return Promise.all(users.map(async user => {
             const lastMessage = await messageService.getMessages(currentUser, user, 0, 1, 'DESC');
-            return {friend: new UserDto(user), lastMessage: lastMessage[0]};
+            return {friend: new UserDto(user), lastMessage: lastMessage ? lastMessage[0] : null};
         }));
     }
 

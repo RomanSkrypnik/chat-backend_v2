@@ -18,7 +18,6 @@ const sequelize = new Sequelize(database, username, password, {
 module.exports = {
     Sequelize,
     sequelize,
-
     statuses: require('../models/status.model')(sequelize, DataTypes),
     users: require('../models/user.model')(sequelize, DataTypes),
     friends: require('../models/friend.model')(sequelize, DataTypes),
