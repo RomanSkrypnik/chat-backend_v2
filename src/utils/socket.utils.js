@@ -17,6 +17,7 @@ module.exports = (io) => {
         console.log('new socket connection');
         const {hash} = currentSocket.decodedToken;
         const user = await userService.getUserByHash(hash);
+
         user.update({isOnline: true});
         sockets?.push({...currentSocket.decodedToken, id: currentSocket.id});
 
@@ -24,6 +25,7 @@ module.exports = (io) => {
             try {
                 const newMessage = await messageService.createMessage(currentSocket.decodedToken, hash, message);
                 const friendSocket = SocketHelper.findUser(sockets, hash);
+
                 friendSocket && currentSocket.to(friendSocket.id).emit('new-message', newMessage);
                 currentSocket.emit('new-message', newMessage);
             } catch (e) {

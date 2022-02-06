@@ -16,19 +16,20 @@ class MessageService {
             relation = await FriendModel.create({user1Id: user.id, user2Id: receiver.id});
         }
 
-        const newMessage =  await MessageModel.create({
+        const newMessage = await MessageModel.create({
             text: message.text,
             relationId: relation.id,
             userId: user.id,
         });
 
         return MessageModel.findByPk(newMessage.id, {
-            attributes: ['id', 'text', 'createdAt', 'updatedAt'],
-            include: {
-                attributes: ['id', 'username', 'hash'],
-                model: UserModel,
-                as: 'sender',
-            }});
+                attributes: ['id', 'text', 'createdAt', 'updatedAt'],
+                include: {
+                    model: UserModel,
+                    as: 'sender',
+                }
+            }
+        );
     }
 
     async getMessages(firstUser, secondUser, offset, limit, order = 'ASC') {

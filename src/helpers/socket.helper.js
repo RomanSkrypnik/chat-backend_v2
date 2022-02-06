@@ -4,5 +4,4 @@ module.exports = class SocketHelper {
         return sockets.find(storedSocket => storedSocket.hash === hash);
     }
 
-
-}
+};
