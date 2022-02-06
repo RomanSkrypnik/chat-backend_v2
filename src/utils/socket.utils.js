@@ -4,6 +4,7 @@ const statusService = require('../services/status.service');
 const userService = require('../services/user.service');
 const friendService = require('../services/friend.service');
 const SocketHelper = require('../helpers/socket.helper');
+const UserDto = require('../dtos/user.dto');
 
 let sockets = [];
 
@@ -18,16 +19,24 @@ module.exports = (io) => {
         const {hash} = currentSocket.decodedToken;
         const user = await userService.getUserByHash(hash);
 
-        user.update({isOnline: true});
+        await user.update({isOnline: true});
         sockets?.push({...currentSocket.decodedToken, id: currentSocket.id});
 
         currentSocket.on('send-message', async ({hash, message}) => {
             try {
-                const newMessage = await messageService.createMessage(currentSocket.decodedToken, hash, message);
+                const user = currentSocket.decodedToken;
+                const newMessage = await messageService.createMessage(user, hash, message);
+
+                const sender = await userService.getUserByHash(user.hash);
+                const receiver = await userService.getUserByHash(hash);
+
+                const senderDto = new UserDto(sender);
+                const receiverDto = new UserDto(receiver);
+
                 const friendSocket = SocketHelper.findUser(sockets, hash);
 
-                friendSocket && currentSocket.to(friendSocket.id).emit('new-message', newMessage);
-                currentSocket.emit('new-message', newMessage);
+                friendSocket && currentSocket.to(friendSocket.id).emit('new-message', {friend: senderDto, lastMessage: newMessage});
+                currentSocket.emit('new-message', {friend: receiverDto, lastMessage: newMessage});
             } catch (e) {
                 console.log(e);
             }
@@ -55,8 +64,8 @@ module.exports = (io) => {
             const {hash} = currentSocket.decodedToken;
             const user = await userService.getUserByHash(hash);
 
-            user.update({isOnline: false});
-            sockets = sockets.length > 0 && sockets.filter(socket => socket.hash !== hash);
+            await user.update({isOnline: false});
+            sockets = sockets.length > 0 ? sockets.filter(socket => socket.hash !== hash) : [];
         });
 
     });
