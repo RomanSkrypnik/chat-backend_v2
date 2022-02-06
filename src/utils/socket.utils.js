@@ -48,9 +48,7 @@ module.exports = (io) => {
                 const friends = await friendService.getFriends(currentSocket.decodedToken);
 
                 const onlineFriends = friends.filter(friend => friend.isOnline);
-                const friendSockets = sockets
-                    .map(socket => onlineFriends.every(onlineFriend => onlineFriend.hash === socket.hash) && socket)
-                    .filter(onlineFriends => onlineFriends);
+                const friendSockets = SocketHelper.getFriendsSockets(sockets, onlineFriends);
 
                 friendSockets.forEach(friendSockets => {
                     currentSocket.to(friendSockets.id).emit('new-status', {status, hash: currentSocket.decodedToken.hash});
@@ -65,8 +63,8 @@ module.exports = (io) => {
             const user = await userService.getUserByHash(hash);
 
             await user.update({isOnline: false});
-            sockets = sockets.length > 0 ? sockets.filter(socket => socket.hash !== hash) : [];
+            sockets = sockets.filter(socket => socket.hash !== hash);
         });
 
     });
-}
+};
