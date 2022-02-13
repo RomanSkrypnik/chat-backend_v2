@@ -59,6 +59,7 @@ module.exports = (io) => {
         });
 
         currentSocket.on('disconnect', async () => {
+            console.log('disconnect');
             const {hash} = currentSocket.decodedToken;
             const user = await userService.getUserByHash(hash);
 
