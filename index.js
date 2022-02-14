@@ -21,6 +21,9 @@ app.use(express.json());
 app.use('/api', routes);
 app.use(errorMiddleware);
 
+app.use(express.static(__dirname + '/public'));
+app.use('/uploads', express.static('uploads'));
+
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
