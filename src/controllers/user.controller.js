@@ -86,6 +86,7 @@ class UserController {
 
     async uploadPhoto(req, res, next) {
         try {
+            console.log(req.file);
             return res.json({message: 'picture is loaded!'});
         } catch (e) {
             next(e);
