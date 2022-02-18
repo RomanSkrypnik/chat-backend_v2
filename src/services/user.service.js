@@ -129,6 +129,11 @@ class UserService {
         }));
     }
 
+    async saveUserAvatar(hash, filename) {
+        const currentUser = await this.getUserByHash(hash);
+        await currentUser.update({pictureUrl: filename});
+    }
+
 }
 
 module.exports = new UserService();

@@ -86,9 +86,12 @@ class UserController {
 
     async uploadPhoto(req, res, next) {
         try {
-            console.log(req.file);
-            return res.json({message: 'picture is loaded!'});
+            const {filename} = req.file;
+            const {hash} = req.user;
+            await userService.saveUserAvatar(hash, filename);
+            return res.json({filename});
         } catch (e) {
+            console.log(e);
             next(e);
         }
     }

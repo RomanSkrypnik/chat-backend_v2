@@ -54,7 +54,7 @@ class MessageService {
                 {
                     model: UserModel,
                     as: 'sender',
-                    attributes: ['id', 'hash', 'username', 'isActivated'],
+                    attributes: ['id', 'hash', 'username', 'pictureUrl', 'isActivated'],
                 }
             ],
             limit,
