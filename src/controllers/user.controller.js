@@ -1,4 +1,5 @@
 const userService = require('../services/user.service');
+const SharpHelper = require('../helpers/sharp.helper');
 const { validationResult } = require('express-validator');
 const ApiException = require('../exceptions/api.exception');
 
@@ -86,9 +87,12 @@ class UserController {
 
     async uploadPhoto(req, res, next) {
         try {
-            const {filename} = req.file;
+            const {filename, path} = req.file;
             const {hash} = req.user;
+
+            SharpHelper.compressPicture(path, 60);
             await userService.saveUserAvatar(hash, filename);
+
             return res.json({filename});
         } catch (e) {
             console.log(e);

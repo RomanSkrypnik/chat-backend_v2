@@ -9,6 +9,7 @@ const friendService = require('./friend.service');
 const UserDto = require('../dtos/user.dto');
 const ApiException = require('../exceptions/api.exception');
 const {Op} = require('sequelize');
+const fs = require('fs');
 
 class UserService {
 
@@ -132,6 +133,14 @@ class UserService {
     async saveUserAvatar(hash, filename) {
         const currentUser = await this.getUserByHash(hash);
         await currentUser.update({pictureUrl: filename});
+
+        if (currentUser.pictureUrl) {
+            fs.unlink('./public/img/' + currentUser.pictureUrl, (err) => {
+                if (err) throw err;
+
+                console.log('File is deleted!')
+            });
+        }
     }
 
 }
