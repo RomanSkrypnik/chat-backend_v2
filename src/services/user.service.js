@@ -115,8 +115,9 @@ class UserService {
         const users = await UserModel.findAll({
             where: {
                 [field]: {
-                    [Op.startsWith]: search
-                }
+                    [Op.startsWith]: search,
+                    [Op.not]: currentUser[field]
+                },
             },
             include: {
                 model: StatusModel,
