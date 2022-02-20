@@ -90,8 +90,8 @@ class UserController {
             const {filename, path} = req.file;
             const {hash} = req.user;
 
-            SharpHelper.compressPicture(path, 60);
             await userService.saveUserAvatar(hash, filename);
+            SharpHelper.compressPicture(path, 60);
 
             return res.json({filename});
         } catch (e) {

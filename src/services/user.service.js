@@ -132,7 +132,6 @@ class UserService {
 
     async saveUserAvatar(hash, filename) {
         const currentUser = await this.getUserByHash(hash);
-        await currentUser.update({pictureUrl: filename});
 
         if (currentUser.pictureUrl) {
             fs.unlink('./public/img/' + currentUser.pictureUrl, (err) => {
@@ -141,6 +140,8 @@ class UserService {
                 console.log('File is deleted!')
             });
         }
+
+        await currentUser.update({pictureUrl: filename});
     }
 
 }
