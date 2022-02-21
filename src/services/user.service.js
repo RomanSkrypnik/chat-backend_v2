@@ -134,7 +134,7 @@ class UserService {
     async saveUserAvatar(hash, filename) {
         const currentUser = await this.getUserByHash(hash);
 
-        if (currentUser.pictureUrl) {
+        if (currentUser.pictureUrl && fs.existsSync(currentUser.pictureUrl)) {
             fs.unlink('./public/img/' + currentUser.pictureUrl, (err) => {
                 if (err) throw err;
 
