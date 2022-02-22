@@ -105,27 +105,27 @@ class UserController {
 
     async checkPasswordIdentity(req, res, next) {
         try {
-            const {enteredPassword} = req.body;
+            const {password} = req.body;
             const {hash} = req.user;
 
-            const passwordMatches = await userService.comparePasswords(hash, enteredPassword);
+            const passwordMatches = await userService.comparePasswords(hash, password);
 
             res.json({success: passwordMatches});
         } catch (e) {
-            console.log(e);
             next(e);
         }
     }
 
     async changePersonalInfo(req, res, next) {
         try {
-            const {newData} = req.body;
+            const {data} = req.body;
             const {hash} = req.user;
 
-            const updatedUser = await userService.updatePersonalInfo(hash, newData);
+            const updatedUser = await userService.updatePersonalInfo(hash, data);
 
             res.json({user: updatedUser});
         } catch (e) {
+            console.log(e);
             next(e);
         }
     }

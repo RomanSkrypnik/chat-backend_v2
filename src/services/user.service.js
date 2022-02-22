@@ -155,7 +155,7 @@ class UserService {
     }
 
     async updatePersonalInfo(hash, newData) {
-        const user = this.getUserByHash(hash);
+        const user = await this.getUserByHash(hash);
 
         await user.update({...newData});
 
