@@ -12,6 +12,8 @@ router.post('/login', userController.login);
 router.post('/logout', AuthMiddleware, userController.logout);
 router.post('/users-by-search', AuthMiddleware, userController.usersBySearch);
 router.post('/upload-photo', AuthMiddleware, upload.single('avatar'), userController.uploadPhoto);
+router.post('/check-password-identity', AuthMiddleware, userController.checkPasswordIdentity);
+router.post('/change-personal-info', AuthMiddleware, userController.changePersonalInfo);
 
 
 router.get('/activate/:link', userController.activate);

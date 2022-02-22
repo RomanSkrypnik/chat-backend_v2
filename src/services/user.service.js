@@ -21,8 +21,11 @@ class UserService {
         }
 
         const password = await bcrypt.hash(data.password, 3);
+
         const activationLink = uuid.v4();
+
         const hash = crypto.randomBytes(20).toString('hex');
+
         await UserModel.create({...data, password, hash, activationLink});
 
         // await mailService.sendActivationMail(data.email, `${process.env.API_URL}/api/activate/${activationLink}`);
@@ -143,6 +146,20 @@ class UserService {
         }
 
         await currentUser.update({pictureUrl: filename});
+    }
+
+    async comparePasswords(hash, enteredPassword) {
+        const {password} = await this.getUserByHash(hash);
+
+        return await bcrypt.compare(enteredPassword, password);
+    }
+
+    async updatePersonalInfo(hash, newData) {
+        const user = this.getUserByHash(hash);
+
+        await user.update({...newData});
+
+        return new UserDto(user);
     }
 
 }

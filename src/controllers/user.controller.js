@@ -1,7 +1,8 @@
 const userService = require('../services/user.service');
 const SharpHelper = require('../helpers/sharp.helper');
-const { validationResult } = require('express-validator');
+const {validationResult} = require('express-validator');
 const ApiException = require('../exceptions/api.exception');
+const bcrypt = require("bcrypt");
 
 class UserController {
 
@@ -26,7 +27,10 @@ class UserController {
         try {
             const formData = req.body;
             const userData = await userService.login(formData);
-            res.cookie('refreshToken', userData.tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
+            res.cookie('refreshToken', userData.tokens.refreshToken, {
+                maxAge: 30 * 24 * 60 * 60 * 1000,
+                httpOnly: true
+            });
             return res.json(userData);
         } catch (e) {
             next(e);
@@ -35,7 +39,7 @@ class UserController {
 
     async logout(req, res, next) {
         try {
-            const { hash } = req.user;
+            const {hash} = req.user;
             const user = await userService.getUserByHash(hash);
             await user.update({isOnline: false});
             res.clearCookie('refreshToken');
@@ -57,7 +61,7 @@ class UserController {
 
     async refresh(req, res, next) {
         try {
-            const { refreshToken } = req.cookies;
+            const {refreshToken} = req.cookies;
             const userData = await userService.refresh(refreshToken);
             return res.json(userData);
         } catch (e) {
@@ -70,7 +74,7 @@ class UserController {
         try {
             const users = await userService.getUsers();
             return res.json(users);
-        } catch(e) {
+        } catch (e) {
             next(e);
         }
     }
@@ -95,7 +99,33 @@ class UserController {
 
             return res.json({filename});
         } catch (e) {
+            next(e);
+        }
+    }
+
+    async checkPasswordIdentity(req, res, next) {
+        try {
+            const {enteredPassword} = req.body;
+            const {hash} = req.user;
+
+            const passwordMatches = await userService.comparePasswords(hash, enteredPassword);
+
+            res.json({success: passwordMatches});
+        } catch (e) {
             console.log(e);
+            next(e);
+        }
+    }
+
+    async changePersonalInfo(req, res, next) {
+        try {
+            const {newData} = req.body;
+            const {hash} = req.user;
+
+            const updatedUser = await userService.updatePersonalInfo(hash, newData);
+
+            res.json({user: updatedUser});
+        } catch (e) {
             next(e);
         }
     }

@@ -23,7 +23,6 @@ module.exports = async function (req, res, next) {
         }
 
         const user = await userService.getUserByHash(userData.hash);
-
         if (!user) {
             return next(ApiException.UnathorizedError());
         }
