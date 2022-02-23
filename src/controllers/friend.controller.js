@@ -10,19 +10,6 @@ class FriendController {
 
             return res.json(friends);
         } catch (e) {
-            console.log(e);
-            next(e);
-        }
-    }
-
-    async searchFriends(req, res, next) {
-        try {
-            const {username} = req.body;
-
-            const friends = await friendService.getFriendsByUsername(req.user, username);
-
-            return res.json(friends);
-        } catch (e) {
             next(e);
         }
     }
