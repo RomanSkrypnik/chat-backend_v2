@@ -10,9 +10,10 @@ class FriendService {
 
     async getFriendsWithMessages(user) {
         const friends = await this.getFriends(user);
+
         return Promise.all(friends.map(async friend => {
-            const lastMessage = await messageService.getMessages(user, friend, 0, 1, 'DESC');
-            return {friend: new UserDto(friend), lastMessage: lastMessage[0]};
+            const messages = await messageService.getMessages(user, friend, 0, 40, 'DESC');
+            return {friend: new UserDto(friend), messages: messages?.reverse()};
         }));
     }
 
@@ -47,7 +48,7 @@ class FriendService {
                 {
                     model: UserModel,
                     as: 'sender',
-                    attributes: ['id', 'hash', 'username', 'isActivated', 'isOnline'],
+                    attributes: ['id', 'hash', 'username', 'isActivated', 'isOnline', 'pictureUrl'],
                     include: {
                         model: StatusModel,
                         as: 'status'
@@ -56,7 +57,7 @@ class FriendService {
                 {
                     model: UserModel,
                     as: 'receiver',
-                    attributes: ['id', 'hash', 'username', 'isActivated', 'isOnline'],
+                    attributes: ['id', 'hash', 'username', 'isActivated', 'isOnline', 'pictureUrl'],
                     include: {
                         model: StatusModel,
                         as: 'status',

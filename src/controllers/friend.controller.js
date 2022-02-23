@@ -7,6 +7,7 @@ class FriendController {
     async friends(req, res, next) {
         try {
             const friends = await friendService.getFriendsWithMessages(req.user);
+
             return res.json(friends);
         } catch (e) {
             console.log(e);
@@ -17,7 +18,9 @@ class FriendController {
     async searchFriends(req, res, next) {
         try {
             const {username} = req.body;
+
             const friends = await friendService.getFriendsByUsername(req.user, username);
+
             return res.json(friends);
         } catch (e) {
             next(e);
@@ -27,8 +30,10 @@ class FriendController {
     async searchFriendByHash(req, res, next) {
         try {
             const {hash} = req.body;
+
             const user = await userService.getUserByHash(hash);
             const userDto = new UserDto(user);
+
             return res.json(userDto);
         } catch (e) {
             next(e);
@@ -38,7 +43,9 @@ class FriendController {
     async removeFriend(req, res, next) {
         try {
             const {hash} = req.body;
+
             const user = await friendService.removeFriend(req.user, hash);
+
             return res.json(user);
         } catch (e) {
             next(e);
