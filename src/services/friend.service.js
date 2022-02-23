@@ -4,7 +4,7 @@ const messageService = require("./message.service");
 const UserDto = require('../dtos/user.dto');
 const UserModel = require('../db/connection').users;
 const StatusModel = require('../db/connection').statuses;
-const { Op } = require('sequelize');
+const {Op} = require('sequelize');
 
 class FriendService {
 
@@ -23,8 +23,8 @@ class FriendService {
             friends
                 .filter(friend => friend.username.toLowerCase().includes(username))
                 .map(async friend => {
-                        const lastMessage = await messageService.getMessages(user, friend, 0, 1, 'DESC');
-                        return {friend: new UserDto(friend), lastMessage: lastMessage[0]};
+                        const messages = await messageService.getMessages(user, friend, 0, 40, 'DESC');
+                        return {friend: new UserDto(friend), messages: messages?.reverse()};
                     }
                 )
         );
@@ -34,7 +34,7 @@ class FriendService {
         const friend = await userService.getUserByHash(hash);
         const condition = [{user1Id: user.id, user2Id: friend.id}, {user1Id: friend.id, user2Id: user.id}];
 
-        const friendRelation = await FriendModel.findOne({where: {[Op.or] : condition}});
+        const friendRelation = await FriendModel.findOne({where: {[Op.or]: condition}});
         await friendRelation.destroy();
     }
 

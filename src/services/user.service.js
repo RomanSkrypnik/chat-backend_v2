@@ -115,6 +115,7 @@ class UserService {
         }
 
         const field = search.startsWith('@') ? 'username' : 'name';
+
         const users = await UserModel.findAll({
             where: {
                 [field]: {
@@ -129,8 +130,8 @@ class UserService {
         });
 
         return Promise.all(users.map(async user => {
-            const lastMessage = await messageService.getMessages(currentUser, user, 0, 1, 'DESC');
-            return {friend: new UserDto(user), lastMessage: lastMessage ? lastMessage[0] : null};
+            const messages = await messageService.getMessages(user, currentUser, 0, 40, 'DESC');
+            return {friend: new UserDto(user), messages: messages?.reverse()};
         }));
     }
 

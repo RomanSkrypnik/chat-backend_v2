@@ -82,9 +82,12 @@ class UserController {
     async usersBySearch(req, res, next) {
         try {
             const {search} = req.body;
+
             const users = await userService.getUsersBySearch(req.user, search);
+
             return res.json(users);
         } catch (e) {
+            console.log(e);
             next(e);
         }
     }
