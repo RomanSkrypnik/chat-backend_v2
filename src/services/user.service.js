@@ -154,10 +154,19 @@ class UserService {
         return await bcrypt.compare(enteredPassword, password);
     }
 
-    async updatePersonalInfo(hash, newData) {
+    async updatePersonalInfo(hash, data) {
         const user = await this.getUserByHash(hash);
 
-        await user.update({...newData});
+        let fields = {...data};
+
+        const {password} = data;
+
+        if (password) {
+            const password = await bcrypt.hash(password, 3);
+            fields = {...fields, password};
+        }
+
+        await user.update(fields);
 
         return new UserDto(user);
     }
