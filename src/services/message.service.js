@@ -2,8 +2,9 @@ const UserModel = require('../db/connection').users;
 const FriendModel = require('../db/connection').friends;
 const MessageModel = require('../db/connection').messages;
 const FileModel = require('../db/connection').files;
-const { Op } = require('sequelize');
-const { sequelize } = require('../db/connection');
+const {Op} = require('sequelize');
+const {sequelize} = require('../db/connection');
+const ApiExceptions = require('../exceptions/api.exception');
 
 class MessageService {
 
@@ -41,7 +42,7 @@ class MessageService {
         }
 
         return MessageModel.findAll({
-            attributes: ['id', 'text', 'createdAt', 'updatedAt'],
+            attributes: ['id', 'text', 'isRead', 'createdAt', 'updatedAt'],
             order: sequelize.literal(`createdAt ${order}`),
             where: {
                 relationId: relation.id
@@ -60,6 +61,16 @@ class MessageService {
             limit,
             offset,
         });
+    }
+
+    async readMessage(id) {
+        const message = await MessageModel.findByPk(id);
+
+        if (!message) {
+            return ApiExceptions.BadRequest('There is not such message');
+        }
+
+        await message.update({isRead: true});
     }
 
     _getCondition(firstUser, secondUser) {

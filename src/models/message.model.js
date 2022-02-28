@@ -11,10 +11,15 @@ module.exports = (sequelize, DataTypes) => {
                 primaryKey: true,
                 autoIncrement: true
             },
+
             text: {
                 type: DataTypes.TEXT,
             },
 
+            isRead: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false,
+            }
         },
         {
             tableName: 'messages',

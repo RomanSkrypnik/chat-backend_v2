@@ -11,7 +11,7 @@ class MessageController {
             const messages = await messageService.getMessages(req.user, friend, offset, limit, 'DESC');
 
             return res.json(messages?.reverse());
-        } catch(e) {
+        } catch (e) {
             console.log(e);
             next(e);
         }
@@ -26,6 +26,18 @@ class MessageController {
             return res.json(newMessage);
         } catch (e) {
             console.log(e);
+            next(e);
+        }
+    }
+
+    async readMessage(req, res, next) {
+        try {
+            const {id} = req.body;
+
+            await messageService.readMessage(id);
+
+            return res.json({success: true, message: 'Message is read'});
+        } catch (e) {
             next(e);
         }
     }
