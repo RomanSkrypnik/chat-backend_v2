@@ -58,13 +58,13 @@ module.exports = (io) => {
             }
         });
 
-        currentSocket.on('read-message', async ({id, friendHash, currentUserHash}) => {
+        currentSocket.on('read-message', async ({id, friendHash, currentHash}) => {
             try {
                 await messageService.readMessage(id);
 
-                const friendSocket = SocketHelper.findUser(sockets, hash);
+                const friendSocket = SocketHelper.findUser(sockets, friendHash);
 
-                friendSocket && currentSocket.to(friendSocket.id).emit('message-is-read', {id, hash: currentUserHash});
+                friendSocket && currentSocket.to(friendSocket.id).emit('message-is-read', {id, hash: currentHash});
                 currentSocket.emit('message-is-read', {id, hash: friendHash});
             } catch (e) {
                 console.log(e);
