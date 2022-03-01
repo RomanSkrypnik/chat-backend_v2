@@ -2,7 +2,9 @@ const router = require('express').Router();
 const userController = require('../controllers/user.controller');
 const AuthMiddleware = require('../middlewares/auth.middleware');
 const { body } = require('express-validator');
-const upload = require('../utils/multer.utils');
+const multer = require('multer');
+const {avatarStorage} = require('../utils/multer.utils');
+const upload = multer({storage: avatarStorage});
 
 router.post('/register',
     body('email').isEmail(),

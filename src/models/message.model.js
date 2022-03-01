@@ -2,7 +2,6 @@ module.exports = (sequelize, DataTypes) => {
 
     const Friend = require('./friend.model')(sequelize, DataTypes);
     const User = require('./user.model')(sequelize, DataTypes);
-    const File = require('./file.model')(sequelize, DataTypes);
 
     const Message = sequelize.define('Message',
         {
@@ -41,14 +40,6 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: {
             name: 'userId',
             allowNull: false,
-        }
-    });
-
-    Message.belongsTo(File, {
-        as: 'file',
-        foreignKey: {
-            name: 'fileId',
-            allowNull: true,
         }
     });
 

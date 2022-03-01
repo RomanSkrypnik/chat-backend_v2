@@ -8,27 +8,42 @@ const ApiExceptions = require('../exceptions/api.exception');
 
 class MessageService {
 
-    async createMessage(user, hash, message) {
-        const receiver = await UserModel.findOne({where: {hash: hash}});
-        const condition = this._getCondition(user, receiver);
-        let relation = await FriendModel.findOne({where: {[Op.or]: condition}});
+    async createMessage(user, hash, text, files) {
+        const receiver = await UserModel.findOne({where: {hash}});
 
-        if (!relation) {
-            relation = await FriendModel.create({user1Id: user.id, user2Id: receiver.id});
-        }
+        const condition = this._getCondition(user, receiver);
+
+        const [relation] = await FriendModel.findOrCreate({
+            where: {[Op.or]: condition},
+            defaults: condition[0],
+        });
 
         const newMessage = await MessageModel.create({
-            text: message.text,
+            text,
             relationId: relation.id,
             userId: user.id,
         });
 
+        if (files) {
+            const rows = files.map(file => {
+                return {
+                    originalName: file.originalname,
+                    uniqueName: file.filename,
+                    messageId: +newMessage.id
+                }
+            });
+
+            await FileModel.bulkCreate(rows);
+        }
+
         return MessageModel.findByPk(newMessage.id, {
                 attributes: ['id', 'text', 'createdAt', 'updatedAt'],
-                include: {
-                    model: UserModel,
-                    as: 'sender',
-                }
+                include: [
+                    {
+                        model: UserModel,
+                        as: 'sender',
+                    },
+                ]
             }
         );
     }
@@ -49,14 +64,10 @@ class MessageService {
             },
             include: [
                 {
-                    model: FileModel,
-                    as: 'file'
-                },
-                {
                     model: UserModel,
                     as: 'sender',
                     attributes: ['id', 'hash', 'username', 'pictureUrl', 'isActivated'],
-                }
+                },
             ],
             limit,
             offset,

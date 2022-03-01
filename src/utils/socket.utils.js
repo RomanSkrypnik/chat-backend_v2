@@ -25,7 +25,7 @@ module.exports = (io) => {
         currentSocket.on('send-message', async ({hash, message}) => {
             try {
                 const user = currentSocket.decodedToken;
-                const newMessage = await messageService.createMessage(user, hash, message);
+                const newMessage = await messageService.createMessage(user, hash, message.text);
 
                 const sender = await userService.getUserByHash(user.hash);
                 const receiver = await userService.getUserByHash(hash);

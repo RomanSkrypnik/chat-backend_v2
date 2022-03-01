@@ -17,19 +17,6 @@ class FriendService {
         }));
     }
 
-    async getFriendsByUsername(user, username) {
-        const friends = await this.getFriends(user);
-        return Promise.all(
-            friends
-                .filter(friend => friend.username.toLowerCase().includes(username))
-                .map(async friend => {
-                        const messages = await messageService.getMessages(user, friend, 0, 40, 'DESC');
-                        return {friend: new UserDto(friend), messages: messages?.reverse()};
-                    }
-                )
-        );
-    }
-
     async removeFriend(user, hash) {
         const friend = await userService.getUserByHash(hash);
         const condition = [{user1Id: user.id, user2Id: friend.id}, {user1Id: friend.id, user2Id: user.id}];
@@ -48,7 +35,7 @@ class FriendService {
                 {
                     model: UserModel,
                     as: 'sender',
-                    attributes: ['id', 'hash', 'username', 'isActivated', 'isOnline', 'pictureUrl'],
+                    attributes: ['id', 'hash', 'username', 'name', 'isActivated', 'isOnline', 'pictureUrl'],
                     include: {
                         model: StatusModel,
                         as: 'status'
@@ -57,7 +44,7 @@ class FriendService {
                 {
                     model: UserModel,
                     as: 'receiver',
-                    attributes: ['id', 'hash', 'username', 'isActivated', 'isOnline', 'pictureUrl'],
+                    attributes: ['id', 'hash', 'username', 'name', 'isActivated', 'isOnline', 'pictureUrl'],
                     include: {
                         model: StatusModel,
                         as: 'status',

@@ -1,6 +1,8 @@
 module.exports = (sequelize, DataTypes) => {
 
-    return sequelize.define('File', {
+    const Message = require('./message.model')(sequelize, DataTypes);
+
+    const File = sequelize.define('File', {
 
         id: {
             type: DataTypes.INTEGER(11).UNSIGNED,
@@ -20,4 +22,13 @@ module.exports = (sequelize, DataTypes) => {
 
     });
 
+    File.belongsTo(Message,{
+        as: 'files',
+        foreignKey: {
+            name: 'messageId',
+            allowNull: false,
+        }
+    });
+
+    return File
 };

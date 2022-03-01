@@ -19,9 +19,9 @@ class MessageController {
 
     async sendMessage(req, res, next) {
         try {
-            const {hash, message} = req.body;
+            const {hash, text} = req.body;
 
-            const newMessage = await messageService.createMessage(req.user, hash, message);
+            const newMessage = await messageService.createMessage(req.user, hash, text, req.files);
 
             return res.json(newMessage);
         } catch (e) {
