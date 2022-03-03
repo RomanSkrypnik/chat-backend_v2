@@ -5,10 +5,15 @@ const userService = require('../services/user.service');
 const friendService = require('../services/friend.service');
 const SocketHelper = require('../helpers/socket.helper');
 const UserDto = require('../dtos/user.dto');
+const siofu = require("socketio-file-upload");
 
 let sockets = [];
 
 module.exports = (io) => {
+
+    const uploader = new siofu();
+    uploader.dir = "/public/img/messages/";
+    uploader.listen(io);
 
     io.use(authorize({
         secret: process.env.JWT_ACCESS_SECRET,
@@ -22,10 +27,17 @@ module.exports = (io) => {
         await user.update({isOnline: true});
         sockets?.push({...currentSocket.decodedToken, id: currentSocket.id});
 
-        currentSocket.on('send-message', async ({hash, message}) => {
+        currentSocket.on('send-message', async ({hash, text, messageId}) => {
             try {
                 const user = currentSocket.decodedToken;
-                const newMessage = await messageService.createMessage(user, hash, message.text);
+
+                let newMessage;
+
+                if (!messageId) {
+                    newMessage = await messageService.createMessage(user, hash, text);
+                } else {
+                    newMessage = await messageService.updateMessage(messageId, text);
+                }
 
                 const sender = await userService.getUserByHash(user.hash);
                 const receiver = await userService.getUserByHash(hash);

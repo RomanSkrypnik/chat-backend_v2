@@ -27,6 +27,7 @@ class FriendService {
 
     async getFriends(user) {
         const condition = [{user1Id: user.id}, {user2Id: user.id}];
+
         const friendsRelations = await FriendModel.findAll({
             where: {
                 [Op.or]: condition,
@@ -52,6 +53,7 @@ class FriendService {
                 }
             ]
         });
+
         return friendsRelations.map(relation => relation.sender.id === user.id ? relation.receiver : relation.sender);
     }
 

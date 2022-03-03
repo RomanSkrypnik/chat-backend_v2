@@ -43,9 +43,37 @@ class MessageService {
                         model: UserModel,
                         as: 'sender',
                     },
+                    {
+                        model: FileModel,
+                        as: 'files'
+                    }
                 ]
             }
         );
+    }
+
+    async updateMessage(messageId, text) {
+        const message = await MessageModel.findByPk(messageId, {
+            attributes: ['id', 'text', 'createdAt', 'updatedAt'],
+            include: [
+                {
+                    model: UserModel,
+                    as: 'sender',
+                },
+                {
+                    model: FileModel,
+                    as: 'files',
+                }
+            ]
+        });
+
+        if (!message) {
+            return ApiExceptions.BadRequest('Message is not found');
+        }
+
+        await message.update({text});
+
+        return message;
     }
 
     async getMessages(firstUser, secondUser, offset, limit, order = 'ASC') {
@@ -68,6 +96,10 @@ class MessageService {
                     as: 'sender',
                     attributes: ['id', 'hash', 'username', 'pictureUrl', 'isActivated'],
                 },
+                {
+                    model: FileModel,
+                    as: 'files',
+                }
             ],
             limit,
             offset,

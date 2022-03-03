@@ -17,11 +17,11 @@ class MessageController {
         }
     }
 
-    async sendMessage(req, res, next) {
+    async sendMediaMessage(req, res, next) {
         try {
-            const {hash, text} = req.body;
+            const {hash} = req.body;
 
-            const newMessage = await messageService.createMessage(req.user, hash, text, req.files);
+            const newMessage = await messageService.createMessage(req.user, hash, '', req.files);
 
             return res.json(newMessage);
         } catch (e) {
