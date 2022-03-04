@@ -2,7 +2,6 @@ const userService = require('../services/user.service');
 const SharpHelper = require('../helpers/sharp.helper');
 const {validationResult} = require('express-validator');
 const ApiException = require('../exceptions/api.exception');
-const bcrypt = require("bcrypt");
 
 class UserController {
 
@@ -15,7 +14,9 @@ class UserController {
             }
 
             const formData = req.body;
+
             const response = await userService.registration(formData);
+
             return res.json(response);
         } catch (e) {
             console.log(e);
@@ -26,11 +27,14 @@ class UserController {
     async login(req, res, next) {
         try {
             const formData = req.body;
+
             const userData = await userService.login(formData);
+
             res.cookie('refreshToken', userData.tokens.refreshToken, {
                 maxAge: 30 * 24 * 60 * 60 * 1000,
                 httpOnly: true
             });
+
             return res.json(userData);
         } catch (e) {
             next(e);
@@ -41,8 +45,11 @@ class UserController {
         try {
             const {hash} = req.user;
             const user = await userService.getUserByHash(hash);
+
             await user.update({isOnline: false});
+
             res.clearCookie('refreshToken');
+
             return res.json({message: 'Logged out'});
         } catch (e) {
             next(e);
@@ -52,7 +59,9 @@ class UserController {
     async activate(req, res, next) {
         try {
             const activationLink = req.params.link;
+
             await userService.activate(activationLink);
+
             return res.redirect(process.env.CLIENT_URL);
         } catch (e) {
             next(e);
@@ -62,7 +71,9 @@ class UserController {
     async refresh(req, res, next) {
         try {
             const {refreshToken} = req.cookies;
+
             const userData = await userService.refresh(refreshToken);
+
             return res.json(userData);
         } catch (e) {
             console.log(e);
@@ -73,6 +84,7 @@ class UserController {
     async users(req, res, next) {
         try {
             const users = await userService.getUsers();
+
             return res.json(users);
         } catch (e) {
             next(e);
@@ -98,7 +110,7 @@ class UserController {
             const {hash} = req.user;
 
             await userService.saveUserAvatar(hash, filename);
-            SharpHelper.compressPicture(path, 60);
+            await SharpHelper.compressPicture(path);
 
             return res.json({filename});
         } catch (e) {

@@ -5,6 +5,7 @@ const FileModel = require('../db/connection').files;
 const {Op} = require('sequelize');
 const {sequelize} = require('../db/connection');
 const ApiExceptions = require('../exceptions/api.exception');
+const SharpHelper = require('../helpers/sharp.helper');
 
 class MessageService {
 
@@ -32,6 +33,10 @@ class MessageService {
                     messageId: +newMessage.id
                 }
             });
+
+            for (const file of files) {
+                await SharpHelper.compressPicture('./public/img/messages/' + file.filename);
+            }
 
             await FileModel.bulkCreate(rows);
         }
@@ -115,6 +120,8 @@ class MessageService {
 
         await message.update({isRead: true});
     }
+
+
 
     _getCondition(firstUser, secondUser) {
         return [{user1Id: firstUser.id, user2Id: secondUser.id}, {user1Id: secondUser.id, user2Id: firstUser.id}]
