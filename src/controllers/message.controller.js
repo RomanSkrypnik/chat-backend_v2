@@ -1,5 +1,6 @@
 const messageService = require('../services/message.service');
 const userService = require('../services/user.service');
+const fileService = require('../services/file.service');
 
 class MessageController {
 
@@ -17,11 +18,15 @@ class MessageController {
         }
     }
 
-    async sendMediaMessage(req, res, next) {
+    async sendMessage(req, res, next) {
         try {
-            const {hash} = req.body;
+            const {hash, text} = req.body;
 
-            const newMessage = await messageService.createMessage(req.user, hash, '', req.files);
+            const newMessage = await messageService.createMessage(req.user, hash, text);
+
+            if (req.files && req.files.length > 0) {
+                newMessage.files = await fileService.createMediaFiles(req.files, newMessage.id);
+            }
 
             return res.json(newMessage);
         } catch (e) {

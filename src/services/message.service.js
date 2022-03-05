@@ -5,11 +5,10 @@ const FileModel = require('../db/connection').files;
 const {Op} = require('sequelize');
 const {sequelize} = require('../db/connection');
 const ApiExceptions = require('../exceptions/api.exception');
-const SharpHelper = require('../helpers/sharp.helper');
 
 class MessageService {
 
-    async createMessage(user, hash, text, files) {
+    async createMessage(user, hash, text) {
         const receiver = await UserModel.findOne({where: {hash}});
 
         const condition = this._getCondition(user, receiver);
@@ -25,22 +24,6 @@ class MessageService {
             userId: user.id,
         });
 
-        if (files) {
-            const rows = files.map(file => {
-                return {
-                    originalName: file.originalname,
-                    uniqueName: file.filename,
-                    messageId: +newMessage.id
-                }
-            });
-
-            for (const file of files) {
-                await SharpHelper.compressPicture('./public/img/messages/' + file.filename);
-            }
-
-            await FileModel.bulkCreate(rows);
-        }
-
         return MessageModel.findByPk(newMessage.id, {
                 attributes: ['id', 'text', 'createdAt', 'updatedAt'],
                 include: [
@@ -48,10 +31,6 @@ class MessageService {
                         model: UserModel,
                         as: 'sender',
                     },
-                    {
-                        model: FileModel,
-                        as: 'files'
-                    }
                 ]
             }
         );
@@ -121,6 +100,27 @@ class MessageService {
         await message.update({isRead: true});
     }
 
+    async getMessageById(id) {
+        const message = await MessageModel.findOne({
+            where: {id},
+            include: [
+                {
+                    model: UserModel,
+                    as: 'sender'
+                },
+                {
+                    model: FileModel,
+                    as: 'files'
+                }
+            ]
+        });
+
+        if (!message) {
+            return ApiExceptions.BadRequest('Message is not found');
+        }
+
+        return message;
+    }
 
 
     _getCondition(firstUser, secondUser) {

@@ -1,5 +1,4 @@
 const FriendModel = require('../db/connection').friends;
-const userService = require("./user.service");
 const messageService = require("./message.service");
 const UserDto = require('../dtos/user.dto');
 const UserModel = require('../db/connection').users;
@@ -12,13 +11,25 @@ class FriendService {
         const friends = await this.getFriends(user);
 
         return Promise.all(friends.map(async friend => {
-            const messages = await messageService.getMessages(user, friend, 0, 40, 'DESC');
-            return {friend: new UserDto(friend), messages: messages?.reverse()};
+            const friendMessages = await messageService.getMessages(user, friend, 0, 40, 'DESC');
+
+            const messages = friendMessages ? friendMessages.reverse() : [];
+
+            return {friend: new UserDto(friend), messages};
         }));
     }
 
+    async getFriendWithMessages(user, hash) {
+        const friend = await UserModel.findOne({where: {hash}});
+        const friendMessages = await messageService.getMessages(user, friend, 0, 40, 'DESC');
+
+        const messages = friendMessages ? friendMessages.reverse() : [];
+
+        return {friend: new UserDto(friend), messages};
+    }
+
     async removeFriend(user, hash) {
-        const friend = await userService.getUserByHash(hash);
+        const friend = await UserModel.findOne({where: {hash}});
         const condition = [{user1Id: user.id, user2Id: friend.id}, {user1Id: friend.id, user2Id: user.id}];
 
         const friendRelation = await FriendModel.findOne({where: {[Op.or]: condition}});

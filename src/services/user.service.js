@@ -130,8 +130,11 @@ class UserService {
         });
 
         return Promise.all(users.map(async user => {
-            const messages = await messageService.getMessages(user, currentUser, 0, 40, 'DESC');
-            return {friend: new UserDto(user), messages: messages?.reverse()};
+            const userMessages = await messageService.getMessages(user, currentUser, 0, 40, 'DESC');
+
+            const messages = userMessages ? userMessages.reverse() : [];
+
+            return {friend: new UserDto(user), messages};
         }));
     }
 

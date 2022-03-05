@@ -18,10 +18,9 @@ class FriendController {
         try {
             const {hash} = req.body;
 
-            const user = await userService.getUserByHash(hash);
-            const userDto = new UserDto(user);
+            const user = await friendService.getFriendWithMessages(req.user, hash);
 
-            return res.json(userDto);
+            return res.json(user);
         } catch (e) {
             next(e);
         }

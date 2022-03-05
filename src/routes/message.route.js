@@ -6,7 +6,7 @@ const {messageStorage} = require('../utils/multer.utils');
 const upload = multer({storage: messageStorage});
 
 router.post('/messages', AuthMiddleware, messageController.messages);
-router.post('/send-media-message', AuthMiddleware, upload.any('files'), messageController.sendMediaMessage);
+router.post('/send-message', AuthMiddleware, upload.array('media'), messageController.sendMessage);
 router.post('/read-message', AuthMiddleware, messageController.readMessage);
 
 module.exports = router;

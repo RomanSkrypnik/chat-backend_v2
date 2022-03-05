@@ -5,15 +5,11 @@ const userService = require('../services/user.service');
 const friendService = require('../services/friend.service');
 const SocketHelper = require('../helpers/socket.helper');
 const UserDto = require('../dtos/user.dto');
-const siofu = require("socketio-file-upload");
 
 let sockets = [];
 
 module.exports = (io) => {
 
-    const uploader = new siofu();
-    uploader.dir = "/public/img/messages/";
-    uploader.listen(io);
 
     io.use(authorize({
         secret: process.env.JWT_ACCESS_SECRET,
@@ -27,28 +23,17 @@ module.exports = (io) => {
         await user.update({isOnline: true});
         sockets?.push({...currentSocket.decodedToken, id: currentSocket.id});
 
-        currentSocket.on('send-message', async ({hash, text, messageId}) => {
+        currentSocket.on('send-message', async ({friendHash, messageId}) => {
             try {
-                const user = currentSocket.decodedToken;
+                const newMessage = await messageService.getMessageById(messageId);
 
-                let newMessage;
+                const friendSocket = SocketHelper.findUser(sockets, friendHash);
 
-                if (!messageId) {
-                    newMessage = await messageService.createMessage(user, hash, text);
-                } else {
-                    newMessage = await messageService.updateMessage(messageId, text);
-                }
+                const friend = await userService.getUserByHash(friendHash);
+                const friendDto = new UserDto(friend);
 
-                const sender = await userService.getUserByHash(user.hash);
-                const receiver = await userService.getUserByHash(hash);
-
-                const senderDto = new UserDto(sender);
-                const receiverDto = new UserDto(receiver);
-
-                const friendSocket = SocketHelper.findUser(sockets, hash);
-
-                friendSocket && currentSocket.to(friendSocket.id).emit('new-message', {friend: senderDto, lastMessage: newMessage});
-                currentSocket.emit('new-message', {friend: receiverDto, lastMessage: newMessage});
+                friendSocket && currentSocket.to(friendSocket.id).emit('new-message', {friend: currentSocket.decodedToken, newMessage});
+                currentSocket.emit('new-message', {friend: friendDto, newMessage});
             } catch (e) {
                 console.log(e);
             }

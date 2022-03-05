@@ -40,7 +40,7 @@ httpServer.listen(PORT, () => console.log(`Listening to port ${PORT}`));
 
 try {
     db.sequelize.authenticate();
-    db.sequelize.sync({ alter: true });
+    db.sequelize.sync({ alter: true, force: false });
     console.log('Connection has been established successfully.');
 } catch (e) {
     console.log(e);

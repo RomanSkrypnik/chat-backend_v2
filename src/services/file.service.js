@@ -1,48 +1,23 @@
 const FileModel = require('../db/connection').files;
-const MessageModel = require('../db/connection').messages;
-const ApiExceptions = require('../exceptions/api.exception');
-const {Op} = require('sequelize');
-const FileHelper = require('../helpers/file.helper');
-
+const SharpHelper = require('../helpers/sharp.helper');
 
 class FileService {
 
-    async deleteMediaFiles(messageId, fileNames) {
+    async createMediaFiles(files, messageId) {
 
-        await FileModel.destroy({
-                where: {
-                    uniqueName: {
-                        [Op.or]: fileNames
-                    }
-                }
+        const rows = files.map(file => {
+            return {
+                originalName: file.originalname,
+                uniqueName: file.filename,
+                messageId
             }
-        );
+        });
 
-
-        for (const fileName of fileNames) {
-            await FileHelper.deleteFile('./public/img/messages/' + fileName);
+        for (const file of files) {
+            await SharpHelper.compressPicture('./public/img/messages/' + file.filename);
         }
 
-        const message = await MessageModel.findOne({
-                where: {
-                    id: messageId
-                },
-                include: {
-                    model: FileModel,
-                    as: 'files'
-                }
-            }
-        );
-
-        if (!message) {
-            return ApiExceptions.BadRequest('Message is not found');
-        }
-
-        if (message.text === '' && message.files.length === 0) {
-            await message.destroy();
-        }
-
-        return message;
+        return await FileModel.bulkCreate(rows);
     }
 
 }
