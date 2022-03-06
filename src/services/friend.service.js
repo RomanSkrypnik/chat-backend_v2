@@ -20,7 +20,14 @@ class FriendService {
     }
 
     async getFriendWithMessages(user, hash) {
-        const friend = await UserModel.findOne({where: {hash}});
+        const friend = await UserModel.findOne({
+            where: {hash},
+            include: {
+                model: StatusModel,
+                as: 'status'
+            }
+        });
+
         const friendMessages = await messageService.getMessages(user, friend, 0, 40, 'DESC');
 
         const messages = friendMessages ? friendMessages.reverse() : [];

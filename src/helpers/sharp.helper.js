@@ -19,10 +19,7 @@ module.exports = class SharpHelper {
 
 
         await sharp(path)
-            .resize(
-                width, height,
-                {fit: 'contain'}
-            )
+            .resize(width, height,)
             .withMetadata()
             .toBuffer((err, buffer) => fs.writeFile(path, buffer, () => {} ));
     }
