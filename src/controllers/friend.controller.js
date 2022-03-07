@@ -1,6 +1,4 @@
 const friendService = require('../services/friend.service');
-const userService = require('../services/user.service');
-const UserDto = require('../dtos/user.dto');
 
 class FriendController {
 
