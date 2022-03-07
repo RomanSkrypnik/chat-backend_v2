@@ -1,6 +1,8 @@
 const messageService = require('../services/message.service');
 const userService = require('../services/user.service');
 const fileService = require('../services/file.service');
+const friendService = require('../services/friend.service');
+const SharpHelper = require('../helpers/sharp.helper');
 
 class MessageController {
 
@@ -18,19 +20,33 @@ class MessageController {
         }
     }
 
-    async sendMessage(req, res, next) {
+    async sendTextMessage(req, res, next) {
         try {
             const {hash, text} = req.body;
 
-            const newMessage = await messageService.createMessage(req.user, hash, text);
-
-            if (req.files && req.files.length > 0) {
-                newMessage.files = await fileService.createMediaFiles(req.files, newMessage.id);
-            }
+            const newMessage = await messageService.createTextMessage(req.user, hash, text);
 
             return res.json(newMessage);
         } catch (e) {
             console.log(e);
+            next(e);
+        }
+    }
+
+    async sendMessageWithMedia(req, res, next) {
+        try {
+            const {hash, text} = req.body;
+
+            for (const file of req.files) {
+                await SharpHelper.compressPicture('./public/img/messages/' + file.filename);
+            }
+
+            const {id} = await friendService.getFriendRelation(req.user, hash);
+
+            const newMessages = await fileService.createMediaFiles(req.files, req.user.id, id, text);
+
+            return res.json(newMessages);
+        } catch (e) {
             next(e);
         }
     }

@@ -4,6 +4,7 @@ const UserDto = require('../dtos/user.dto');
 const UserModel = require('../db/connection').users;
 const StatusModel = require('../db/connection').statuses;
 const {Op} = require('sequelize');
+const ApiExceptions = require('../exceptions/api.exception');
 
 class FriendService {
 
@@ -75,6 +76,23 @@ class FriendService {
         return friendsRelations.map(relation => relation.sender.id === user.id ? relation.receiver : relation.sender);
     }
 
+    async getFriendRelation(user, hash) {
+        const friend = await UserModel.findOne({where: {hash}});
+
+        if (!friend) {
+            return ApiExceptions.BadRequest('User is not found');
+        }
+
+        const condition = this._getCondition(user, friend);
+
+        return await FriendModel.findOne({
+            where: {[Op.or]: condition},
+        });
+    }
+
+    _getCondition(firstUser, secondUser) {
+        return [{user1Id: firstUser.id, user2Id: secondUser.id}, {user1Id: secondUser.id, user2Id: firstUser.id}]
+    }
 }
 
 module.exports = new FriendService();

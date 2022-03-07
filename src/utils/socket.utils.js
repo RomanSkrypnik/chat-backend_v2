@@ -23,17 +23,37 @@ module.exports = (io) => {
         await user.update({isOnline: true});
         sockets?.push({...currentSocket.decodedToken, id: currentSocket.id});
 
-        currentSocket.on('send-message', async ({friendHash, messageId}) => {
+        currentSocket.on('send-text-message', async ({friendHash, message}) => {
             try {
-                const newMessage = await messageService.getMessageById(messageId);
-
                 const friendSocket = SocketHelper.findUser(sockets, friendHash);
 
                 const friend = await userService.getUserByHash(friendHash);
                 const friendDto = new UserDto(friend);
 
-                friendSocket && currentSocket.to(friendSocket.id).emit('new-message', {friend: currentSocket.decodedToken, newMessage});
-                currentSocket.emit('new-message', {friend: friendDto, newMessage});
+                friendSocket && currentSocket.to(friendSocket.id).emit('new-message', {
+                    friend: currentSocket.decodedToken,
+                    newMessage: message
+                });
+
+                currentSocket.emit('new-text-message', {friend: friendDto, newMessage: message});
+            } catch (e) {
+                console.log(e);
+            }
+        });
+
+        currentSocket.on('send-media-message', async ({friendHash, messages}) => {
+            try {
+                const friendSocket = SocketHelper.findUser(sockets, friendHash);
+
+                const friend = await userService.getUserByHash(friendHash);
+                const friendDto = new UserDto(friend);
+
+                friendSocket && currentSocket.to(friendSocket.id).emit('new-messages', {
+                    friend: currentSocket.decodedToken,
+                    newMessages: messages
+                });
+
+                currentSocket.emit('new-media-message', {friend: friendDto, newMessages: messages});
             } catch (e) {
                 console.log(e);
             }
@@ -48,7 +68,10 @@ module.exports = (io) => {
                 const friendSockets = SocketHelper.getFriendsSockets(sockets, onlineFriends);
 
                 friendSockets.forEach(friendSockets => {
-                    currentSocket.to(friendSockets.id).emit('new-status', {status, hash: currentSocket.decodedToken.hash});
+                    currentSocket.to(friendSockets.id).emit('new-status', {
+                        status,
+                        hash: currentSocket.decodedToken.hash
+                    });
                 });
             } catch (e) {
                 console.log(e);

@@ -21,7 +21,8 @@ module.exports = class SharpHelper {
         await sharp(path)
             .resize(width, height,)
             .withMetadata()
-            .toBuffer((err, buffer) => fs.writeFile(path, buffer, () => {} ));
+            .toBuffer((err, buffer) => fs.writeFile(path, buffer, () => {
+            }));
     }
 
     static async getMetaData(path) {

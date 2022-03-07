@@ -8,7 +8,7 @@ const ApiExceptions = require('../exceptions/api.exception');
 
 class MessageService {
 
-    async createMessage(user, hash, text) {
+    async createTextMessage(user, hash, text) {
         const receiver = await UserModel.findOne({where: {hash}});
 
         const condition = this._getCondition(user, receiver);

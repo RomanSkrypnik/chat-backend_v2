@@ -1,39 +1,76 @@
 const FileModel = require('../db/connection').files;
-const SharpHelper = require('../helpers/sharp.helper');
 const MessageModel = require('../db/connection').messages;
+const UserModel = require('../db/connection').users;
 
 class FileService {
 
-    async createMediaFiles(files, messageId) {
-
-        for (const file of files) {
-            await SharpHelper.compressPicture('./public/img/messages/' + file.filename);
-        }
+    async createMediaFiles(files, senderId, relationId, text) {
 
         if (files.length > 5) {
-            const nestedFiles = this._processMoreThanFiveFiles(files);
-            const {userId, relationId} = await MessageModel.findByPk(messageId);
+            const nestedFiles = this._getNestedFiles(files);
+            let messageText = text;
 
-            let newMessageId = messageId;
+            return await Promise.all(nestedFiles.map(async fileArray => {
+                const {id} = await MessageModel.create(
+                    {
+                        text: messageText,
+                        relationId,
+                        userId: senderId
+                    },
+                );
 
-            const insertedFiles = await Promise.all(nestedFiles.map(async fileArray => {
-                const rows = this._getFormattedFiles(fileArray, newMessageId);
+                const rows = this._getFormattedFiles(fileArray, id);
 
-                const newMessage = await MessageModel.create({userId, relationId, text: ''});
+                await FileModel.bulkCreate(rows);
 
-                newMessageId = newMessage.id;
-
-                return await FileModel.bulkCreate(rows);
+                return await MessageModel.findOne(
+                    {
+                        where: {id},
+                        include: [
+                            {
+                                model: FileModel,
+                                as: 'files'
+                            },
+                            {
+                                model: UserModel,
+                                as: 'sender',
+                            }
+                        ]
+                    });
             }));
-
-            return insertedFiles.flat();
         } else {
-            const rows = this._getFormattedFiles(files, messageId);
-            return await FileModel.bulkCreate(rows);
+            const {id} = await MessageModel.create(
+                {
+                    text,
+                    relationId,
+                    userId: senderId,
+                }
+            );
+
+            const rows = this._getFormattedFiles(files, id);
+
+            await FileModel.bulkCreate(rows);
+
+            const message = await MessageModel.findOne(
+                {
+                    where: {id},
+                    include: [
+                        {
+                            model: FileModel,
+                            as: 'files'
+                        },
+                        {
+                            model: UserModel,
+                            as: 'sender',
+                        }
+                    ]
+                });
+
+            return [message];
         }
     }
 
-    _processMoreThanFiveFiles(files) {
+    _getNestedFiles(files) {
         let residual = files.length;
         let start = 0;
         const rows = [];
