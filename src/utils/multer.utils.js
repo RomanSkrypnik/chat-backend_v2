@@ -6,18 +6,31 @@ const filename = (req, file, cb) => {
     cb(null, file.fieldname + '-' + uniqueSuffix + ext);
 };
 
+const voiceFileName = (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    let ext = '.ogg';
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+};
+
 const avatarStorage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, './public/img/avatars')
+        cb(null, './public/avatars');
     },
     filename,
 });
 
 const messageStorage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, './public/img/messages')
+        cb(null, './public/messages');
     },
     filename
 });
 
-module.exports = {avatarStorage, messageStorage};
+const voiceStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './public/voices');
+    },
+    filename: voiceFileName
+});
+
+module.exports = {avatarStorage, messageStorage, voiceStorage};

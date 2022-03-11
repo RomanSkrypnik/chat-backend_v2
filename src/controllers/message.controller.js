@@ -51,6 +51,15 @@ class MessageController {
         }
     }
 
+    async sendVoiceMessage(req, res, next) {
+        try {
+
+
+        } catch (e) {
+            next(e);
+        }
+    }
+
     async readMessage(req, res, next) {
         try {
             const {id} = req.body;
