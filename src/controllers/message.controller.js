@@ -3,6 +3,7 @@ const userService = require('../services/user.service');
 const fileService = require('../services/file.service');
 const friendService = require('../services/friend.service');
 const SharpHelper = require('../helpers/sharp.helper');
+const fs = require('fs');
 
 class MessageController {
 
@@ -67,6 +68,18 @@ class MessageController {
             await messageService.readMessage(id);
 
             return res.json({success: true, message: 'Message is read'});
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async stareMessage(req, res, next) {
+        try {
+            const {messageId} = req.body;
+
+            const starred = await messageService.stareMessage(req.user, messageId);
+
+            return res.json(starred);
         } catch (e) {
             next(e);
         }

@@ -23,4 +23,5 @@ module.exports = {
     friends: require('../models/friend.model')(sequelize, DataTypes),
     messages: require('../models/message.model')(sequelize, DataTypes).Message,
     files: require('../models/message.model')(sequelize, DataTypes).File,
+    starred: require('../models/message.model')(sequelize, DataTypes).Starred,
 };

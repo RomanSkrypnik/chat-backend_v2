@@ -1,9 +1,12 @@
 module.exports = class ApiException extends Error {
     status;
     errors;
+    message;
 
     constructor(status, message, errors) {
-        super(message);
+        super();
+
+        this.message = message;
         this.status = status;
         this.errors = errors;
     }

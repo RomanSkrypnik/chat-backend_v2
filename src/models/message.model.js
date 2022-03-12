@@ -18,6 +18,16 @@ module.exports = (sequelize, DataTypes) => {
             isRead: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,
+            },
+
+            starredBySender: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false,
+            },
+
+            starredByReceiver: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false,
             }
         },
         {
@@ -45,7 +55,20 @@ module.exports = (sequelize, DataTypes) => {
         }
     });
 
-    Message.hasMany(File,{
+    const Starred = sequelize.define('Starred', {
+            id: {
+                type: DataTypes.INTEGER(11).UNSIGNED,
+                primaryKey: true,
+                autoIncrement: true
+            },
+        },
+        {
+            tableName: 'starredMessages',
+            timestamps: true,
+        }
+    );
+
+    Message.hasMany(File, {
         as: 'files',
         foreignKey: {
             name: 'messageId',
@@ -78,5 +101,21 @@ module.exports = (sequelize, DataTypes) => {
         }
     });
 
-    return {Message, File};
+    Starred.belongsTo(Message, {
+        as: 'starred',
+        foreignKey: {
+            name: 'messageId',
+            allowNull: false,
+        }
+    });
+
+    Starred.belongsTo(User, {
+        as: 'user',
+        foreignKey: {
+            name: 'userId',
+            allowNull: false,
+        }
+    });
+
+    return {Message, File, Starred};
 };

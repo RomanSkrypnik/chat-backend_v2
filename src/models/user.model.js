@@ -35,6 +35,10 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull: false,
             },
 
+            activity: {
+              type: DataTypes.STRING,
+            },
+
             pictureUrl: {
                 type: DataTypes.STRING,
             },

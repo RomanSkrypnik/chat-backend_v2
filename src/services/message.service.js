@@ -2,6 +2,7 @@ const UserModel = require('../db/connection').users;
 const FriendModel = require('../db/connection').friends;
 const MessageModel = require('../db/connection').messages;
 const FileModel = require('../db/connection').files;
+const StarredModel = require('../db/connection').starred;
 const {Op} = require('sequelize');
 const {sequelize} = require('../db/connection');
 const ApiExceptions = require('../exceptions/api.exception');
@@ -69,7 +70,7 @@ class MessageService {
         }
 
         return MessageModel.findAll({
-            attributes: ['id', 'text', 'isRead', 'createdAt', 'updatedAt'],
+            attributes: ['id', 'text', 'isRead', 'createdAt', 'updatedAt', 'starredByReceiver', 'starredBySender'],
             order: sequelize.literal(`createdAt ${order}`),
             where: {
                 relationId: relation.id
@@ -120,6 +121,24 @@ class MessageService {
         }
 
         return message;
+    }
+
+    async stareMessage(user, messageId) {
+        const message = await MessageModel.findByPk(messageId);
+
+        if (!message) {
+            return ApiExceptions.BadRequest('Message is not found');
+        }
+
+        const relation = await FriendModel.findByPk(message.relationId);
+
+        if (relation.user1Id !== user.id) {
+            if (relation.user2Id !== user.id) {
+                return ApiExceptions.BadRequest("User is not a sender or receiver");
+            }
+        }
+
+        return await StarredModel.create({userId: user.id, messageId});
     }
 
 
