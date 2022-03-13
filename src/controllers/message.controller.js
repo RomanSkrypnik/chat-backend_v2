@@ -39,7 +39,7 @@ class MessageController {
             const {hash, text} = req.body;
 
             for (const file of req.files) {
-                await SharpHelper.compressPicture('./public/img/messages/' + file.filename);
+                await SharpHelper.compressPicture('./public/messages/' + file.filename);
             }
 
             const {id} = await friendService.getFriendRelation(req.user, hash);
