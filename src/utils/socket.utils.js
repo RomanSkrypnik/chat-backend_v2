@@ -30,7 +30,7 @@ module.exports = (io) => {
                 const friend = await userService.getUserByHash(friendHash);
                 const friendDto = new UserDto(friend);
 
-                friendSocket && currentSocket.to(friendSocket.id).emit('new-message', {
+                friendSocket && currentSocket.to(friendSocket.id).emit('new-text-message', {
                     friend: currentSocket.decodedToken,
                     newMessage: message
                 });
@@ -48,7 +48,7 @@ module.exports = (io) => {
                 const friend = await userService.getUserByHash(friendHash);
                 const friendDto = new UserDto(friend);
 
-                friendSocket && currentSocket.to(friendSocket.id).emit('new-messages', {
+                friendSocket && currentSocket.to(friendSocket.id).emit('new-media-message', {
                     friend: currentSocket.decodedToken,
                     newMessages: messages
                 });
