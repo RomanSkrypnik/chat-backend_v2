@@ -3,6 +3,7 @@ module.exports = class UserDto {
     id;
     hash;
     name;
+    email;
     status;
     isOnline;
     username;
@@ -13,6 +14,7 @@ module.exports = class UserDto {
         this.id = model.id;
         this.hash = model.hash;
         this.name = model.name;
+        this.email = model.email;
         this.isOnline = model.isOnline;
         this.username = model.username;
         this.pictureUrl = model.pictureUrl;

@@ -165,10 +165,10 @@ class UserService {
 
         let fields = {...data};
 
-        const {password} = data;
+        const {newPassword} = data;
 
-        if (password) {
-            const password = await bcrypt.hash(password, 3);
+        if (newPassword) {
+            const password = await bcrypt.hash(newPassword, 3);
             fields = {...fields, password};
         }
 
