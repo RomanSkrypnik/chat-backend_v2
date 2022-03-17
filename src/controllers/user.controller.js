@@ -136,9 +136,9 @@ class UserController {
             const {data} = req.body;
             const {hash} = req.user;
 
-            const updatedUser = await userService.updatePersonalInfo(hash, data);
+            const user = await userService.updatePersonalInfo(hash, data);
 
-            res.json({user: updatedUser});
+            res.json(user);
         } catch (e) {
             console.log(e);
             next(e);

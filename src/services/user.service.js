@@ -163,18 +163,18 @@ class UserService {
     async updatePersonalInfo(hash, data) {
         const user = await this.getUserByHash(hash);
 
-        let fields = {...data};
+        let fields = data;
 
-        const {newPassword} = data;
+        const {newPassword} = fields;
 
         if (newPassword) {
             const password = await bcrypt.hash(newPassword, 3);
             fields = {...fields, password};
         }
 
-        await user.update(fields);
+        const updatedUser = await user.update(fields);
 
-        return new UserDto(user);
+        return new UserDto(updatedUser);
     }
 
 }
