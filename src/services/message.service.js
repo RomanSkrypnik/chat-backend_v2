@@ -70,7 +70,7 @@ class MessageService {
         }
 
         return MessageModel.findAll({
-            attributes: ['id', 'text', 'isRead', 'createdAt', 'updatedAt', 'starredByReceiver', 'starredBySender'],
+            attributes: ['id', 'text', 'isRead', 'createdAt', 'updatedAt'],
             order: sequelize.literal(`createdAt ${order}`),
             where: {
                 relationId: relation.id

@@ -85,9 +85,15 @@ class FriendService {
 
         const condition = this._getCondition(user, friend);
 
-        return await FriendModel.findOne({
+        const relation = await FriendModel.findOne({
             where: {[Op.or]: condition},
         });
+
+        if (!relation) {
+            return await FriendModel.create({user1Id: user.id, user2Id: friend.id});
+        }
+
+        return relation;
     }
 
     _getCondition(firstUser, secondUser) {
