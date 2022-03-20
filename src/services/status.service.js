@@ -1,5 +1,6 @@
-const StatusModel = require('../db/connection').statuses;
-const UserModel = require('../db/connection').users;
+const StatusModel = require('../db').statuses;
+const UserModel = require('../db').users;
+
 const ApiException = require('../exceptions/api.exception');
 const StatusDto = require('../dtos/status.dto');
 

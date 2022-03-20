@@ -1,15 +1,19 @@
-const UserModel = require('../db/connection').users;
-const StatusModel = require('../db/connection').statuses;
+const UserModel = require('../db').users;
+const StatusModel = require('../db').statuses;
+
+const tokenService = require('./token.service');
+const messageService = require('./message.service');
+const relationService = require('./relation.service');
+
+const UserDto = require('../dtos/user.dto');
+
+const ApiException = require('../exceptions/api.exception');
+
+const fs = require('fs');
 const bcrypt = require('bcrypt');
 const uuid = require('uuid');
 const crypto = require('crypto');
-const tokenService = require('./token.service');
-const messageService = require('./message.service');
-const friendService = require('./friend.service');
-const UserDto = require('../dtos/user.dto');
-const ApiException = require('../exceptions/api.exception');
 const {Op} = require('sequelize');
-const fs = require('fs');
 
 class UserService {
 
@@ -111,7 +115,7 @@ class UserService {
     async getUsersBySearch(currentUser, search) {
 
         if (!search) {
-            return await friendService.getFriendsWithMessages(currentUser);
+            return await relationService.getFriendsWithMessages(currentUser);
         }
 
         const field = search.startsWith('@') ? 'username' : 'name';

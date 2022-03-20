@@ -1,7 +1,7 @@
 const messageService = require('../services/message.service');
 const userService = require('../services/user.service');
 const fileService = require('../services/file.service');
-const friendService = require('../services/friend.service');
+const friendService = require('../services/relation.service');
 const SharpHelper = require('../helpers/sharp.helper');
 const fs = require('fs');
 

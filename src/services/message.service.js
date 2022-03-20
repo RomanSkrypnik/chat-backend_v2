@@ -1,11 +1,14 @@
-const UserModel = require('../db/connection').users;
-const FriendModel = require('../db/connection').friends;
-const MessageModel = require('../db/connection').messages;
-const FileModel = require('../db/connection').files;
-const StarredModel = require('../db/connection').starred;
-const {Op} = require('sequelize');
-const {sequelize} = require('../db/connection');
+const UserModel = require('../db').users;
+const RelationModel = require('../db').relations;
+const MessageModel = require('../db').messages;
+const FileModel = require('../db').files;
+const StarredModel = require('../db').starred;
+
+const {sequelize} = require('../db');
+
 const ApiExceptions = require('../exceptions/api.exception');
+
+const {Op} = require('sequelize');
 
 class MessageService {
 
@@ -14,7 +17,7 @@ class MessageService {
 
         const condition = this._getCondition(user, receiver);
 
-        const [relation] = await FriendModel.findOrCreate({
+        const [relation] = await RelationModel.findOrCreate({
             where: {[Op.or]: condition},
             defaults: condition[0],
         });
@@ -63,7 +66,7 @@ class MessageService {
 
     async getMessages(firstUser, secondUser, offset, limit, order = 'ASC') {
         const condition = this._getCondition(firstUser, secondUser);
-        const relation = await FriendModel.findOne({where: {[Op.or]: condition}});
+        const relation = await RelationModel.findOne({where: {[Op.or]: condition}});
 
         if (!relation) {
             return null;
@@ -130,7 +133,7 @@ class MessageService {
             return ApiExceptions.BadRequest('Message is not found');
         }
 
-        const relation = await FriendModel.findByPk(message.relationId);
+        const relation = await RelationModel.findByPk(message.relationId);
 
         if (relation.user1Id !== user.id) {
             if (relation.user2Id !== user.id) {

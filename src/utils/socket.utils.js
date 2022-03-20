@@ -2,7 +2,7 @@ const {authorize} = require('@thream/socketio-jwt');
 const messageService = require('../services/message.service');
 const statusService = require('../services/status.service');
 const userService = require('../services/user.service');
-const friendService = require('../services/friend.service');
+const friendService = require('../services/relation.service');
 const SocketHelper = require('../helpers/socket.helper');
 const UserDto = require('../dtos/user.dto');
 

@@ -1,6 +1,6 @@
-const FileModel = require('../db/connection').files;
-const MessageModel = require('../db/connection').messages;
-const UserModel = require('../db/connection').users;
+const FileModel = require('../db').files;
+const MessageModel = require('../db').messages;
+const UserModel = require('../db').users;
 
 class FileService {
 

@@ -1,10 +1,10 @@
-const friendService = require('../services/friend.service');
+const relationService = require('../services/relation.service');
 
-class FriendController {
+class RelationController {
 
     async friends(req, res, next) {
         try {
-            const friends = await friendService.getFriendsWithMessages(req.user);
+            const friends = await relationService.getFriendsWithMessages(req.user);
 
             return res.json(friends);
         } catch (e) {
@@ -16,7 +16,7 @@ class FriendController {
         try {
             const {hash} = req.body;
 
-            const user = await friendService.getFriendWithMessages(req.user, hash);
+            const user = await relationService.getFriendWithMessages(req.user, hash);
 
             return res.json(user);
         } catch (e) {
@@ -28,7 +28,7 @@ class FriendController {
         try {
             const {hash} = req.body;
 
-            const user = await friendService.removeFriend(req.user, hash);
+            const user = await relationService.removeFriend(req.user, hash);
 
             return res.json(user);
         } catch (e) {
@@ -39,4 +39,4 @@ class FriendController {
 
 }
 
-module.exports = new FriendController();
+module.exports = new RelationController();

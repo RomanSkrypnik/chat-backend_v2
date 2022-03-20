@@ -67,6 +67,7 @@ module.exports = {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       }
+
     });
   },
 
