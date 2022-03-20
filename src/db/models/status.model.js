@@ -13,7 +13,14 @@ module.exports = (sequelize, DataTypes) => {
         }
     }
 
+
     Status.init({
+
+            id: {
+                type: DataTypes.INTEGER(11).UNSIGNED,
+                autoIncrement: true,
+                primaryKey: true,
+            },
 
             name: {
                 type: DataTypes.STRING,

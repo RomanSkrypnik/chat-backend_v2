@@ -11,11 +11,7 @@ module.exports = (sequelize, DataTypes) => {
         static associate(models) {
             User.belongsTo(models.statuses, {
                 as: 'status',
-                foreignKey: {
-                    name: 'statusId',
-                    defaultValue: 1,
-                    allowNull: false
-                }
+                foreignKey: 'statusId'
             });
         }
     }

@@ -5,6 +5,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const errorMiddleware = require('./src/middlewares/error.middleware');
 const routes = require('./src/routes/');
+const {sequelize} = require('./src/db/models');
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const handleSockets = require('./src/utils/socket.utils');
@@ -37,4 +38,13 @@ const io = new Server(httpServer, {
 handleSockets(io);
 
 httpServer.listen(PORT, () => console.log(`Listening to port ${PORT}`));
+
+try {
+    sequelize.authenticate();
+    sequelize.sync({alter: true, logging: false});
+} catch (e) {
+    console.log(e);
+}
+
+
 

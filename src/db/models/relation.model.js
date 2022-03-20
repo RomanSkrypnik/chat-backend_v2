@@ -35,7 +35,6 @@ module.exports = (sequelize, DataTypes) => {
                 primaryKey: true,
             },
 
-
         },
         {
             sequelize,

@@ -1,6 +1,9 @@
 const userService = require('../services/user.service');
+
 const SharpHelper = require('../helpers/sharp.helper');
+
 const {validationResult} = require('express-validator');
+
 const ApiException = require('../exceptions/api.exception');
 
 class UserController {

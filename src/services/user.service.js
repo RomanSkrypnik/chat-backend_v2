@@ -86,7 +86,9 @@ class UserService {
         }
 
         const user = await this.getUserByHash(userData.hash);
+
         const userDto = new UserDto(user);
+
         const tokens = tokenService.generateTokens({...userDto});
 
         return {...tokens, user: userDto};
