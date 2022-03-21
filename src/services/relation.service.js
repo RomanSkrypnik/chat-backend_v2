@@ -1,6 +1,7 @@
 const RelationModel = require('../db').relations;
 const UserModel = require('../db').users;
 const StatusModel = require('../db').statuses;
+const MutedModel = require('../db').muted;
 
 const messageService = require("./message.service");
 
@@ -73,11 +74,27 @@ class RelationService {
                         model: StatusModel,
                         as: 'status',
                     }
+                },
+                {
+                    model: MutedModel,
+                    as: 'muted',
                 }
             ]
         });
 
-        return friendsRelations.map(relation => relation.sender.id === user.id ? relation.receiver : relation.sender);
+        return friendsRelations.map(relation => {
+            const mutedRelation = relation.muted;
+            let isMuted = false;
+
+            if (mutedRelation) {
+                isMuted = mutedRelation.user1Id === user.id;
+            }
+
+            if (relation.sender.id === user.id) {
+                return {...relation.receiver, isMuted};
+            }
+            return {...relation.sender, isMuted};
+        });
     }
 
     async getFriendRelation(user, hash) {

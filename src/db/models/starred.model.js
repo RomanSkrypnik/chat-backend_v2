@@ -9,19 +9,21 @@ module.exports = (sequelize, DataTypes) => {
          * The `models/index` file will call this method automatically.
          */
         static associate(models) {
-            Starred.belongsTo(models.messages, {
+            Starred.belongsTo(models.Message, {
                 as: 'messages',
                 foreignKey: {
                     name: 'messageId',
                     allowNull: false,
+                    onDelete: 'cascade'
                 }
             });
 
-            Starred.belongsTo(models.users, {
+            Starred.belongsTo(models.User, {
                 as: 'user',
                 foreignKey: {
                     name: 'userId',
                     allowNull: false,
+                    onDelete: 'cascade'
                 }
             });
         }
@@ -38,7 +40,8 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
             sequelize,
-            modelName: 'starred_messages',
+            modelName: 'Starred',
+            tableName: 'starred_messages',
             timestamps: true,
         });
 

@@ -41,7 +41,7 @@ httpServer.listen(PORT, () => console.log(`Listening to port ${PORT}`));
 
 try {
     sequelize.authenticate();
-    sequelize.sync({alter: true, logging: false});
+    sequelize.sync({alter: true, logging: false, force: false});
 } catch (e) {
     console.log(e);
 }

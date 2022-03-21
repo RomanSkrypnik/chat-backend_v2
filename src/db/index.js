@@ -5,10 +5,11 @@ module.exports = {
     Sequelize,
     sequelize,
 
-    statuses: db.statuses,
-    users: db.users,
-    relations: db.relations,
-    messages: db.messages,
-    files: db.files,
-    starred: db.starred,
+    statuses: db.Status,
+    users: db.User,
+    relations: db.Relation,
+    messages: db.Message,
+    files: db.File,
+    starred: db.Starred,
+    muted: db.Muted,
 };

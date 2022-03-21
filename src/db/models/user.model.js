@@ -9,10 +9,13 @@ module.exports = (sequelize, DataTypes) => {
          * The `models/index` file will call this method automatically.
          */
         static associate(models) {
-            User.belongsTo(models.statuses, {
+
+            User.belongsTo(models.Status, {
                 as: 'status',
-                foreignKey: 'statusId'
+                foreignKey: 'statusId',
+                onDelete: 'cascade'
             });
+
         }
     }
 
@@ -83,7 +86,8 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
             sequelize,
-            modelName: 'users',
+            modelName: 'User',
+            tableName: 'users',
             timestamps: false,
         });
 

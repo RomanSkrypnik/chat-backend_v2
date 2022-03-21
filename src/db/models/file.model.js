@@ -9,11 +9,12 @@ module.exports = (sequelize, DataTypes) => {
          * The `models/index` file will call this method automatically.
          */
         static associate(models) {
-            File.belongsTo(models.messages, {
+            File.belongsTo(models.Message, {
                 as: 'message',
                 foreignKey: {
                     name: 'messageId',
                     allowNull: false,
+                    onDelete: 'cascade'
                 }
             });
         }
@@ -41,7 +42,8 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
             sequelize,
-            modelName: 'files',
+            modelName: 'File',
+            tableName: 'files',
             timestamps: false,
         });
 

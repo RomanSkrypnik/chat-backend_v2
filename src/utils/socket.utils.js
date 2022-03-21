@@ -2,7 +2,7 @@ const {authorize} = require('@thream/socketio-jwt');
 const messageService = require('../services/message.service');
 const statusService = require('../services/status.service');
 const userService = require('../services/user.service');
-const friendService = require('../services/relation.service');
+const relationService = require('../services/relation.service');
 const SocketHelper = require('../helpers/socket.helper');
 const UserDto = require('../dtos/user.dto');
 
@@ -62,7 +62,7 @@ module.exports = (io) => {
         currentSocket.on('change-status', async ({status}) => {
             try {
                 await statusService.changeUserStatus(currentSocket.decodedToken, status);
-                const friends = await friendService.getFriends(currentSocket.decodedToken);
+                const friends = await relationService.getFriends(currentSocket.decodedToken);
 
                 const onlineFriends = friends.filter(friend => friend.isOnline);
                 const friendSockets = SocketHelper.getFriendsSockets(sockets, onlineFriends);

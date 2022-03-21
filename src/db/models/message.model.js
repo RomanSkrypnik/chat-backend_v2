@@ -9,28 +9,31 @@ module.exports = (sequelize, DataTypes) => {
          * The `models/index` file will call this method automatically.
          */
         static associate(models) {
-            Message.hasMany(models.files, {
+            Message.hasMany(models.File, {
                 as: 'files',
                 foreignKey: {
                     name: 'messageId',
                     allowNull: false,
+                    onDelete: 'cascade'
                 }
             });
 
-            Message.belongsTo(models.relations, {
+            Message.belongsTo(models.Relation, {
                     as: 'relation',
                     foreignKey: {
                         name: 'relationId',
                         allowNull: false,
+                        onDelete: 'cascade'
                     }
                 }
             );
 
-            Message.belongsTo(models.users, {
+            Message.belongsTo(models.User, {
                 as: 'sender',
                 foreignKey: {
                     name: 'userId',
                     allowNull: false,
+                    onDelete: 'cascade'
                 }
             });
         }
@@ -56,7 +59,8 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
             sequelize,
-            modelName: 'messages',
+            modelName: 'Message',
+            tableName: 'messages',
             timestamps: true,
         });
 
