@@ -2,9 +2,12 @@ const userService = require('../services/user.service');
 
 const SharpHelper = require('../helpers/sharp.helper');
 
+const UserRepository = require('../repositories/user.repository');
+
 const {validationResult} = require('express-validator');
 
 const ApiException = require('../exceptions/api.exception');
+
 
 class UserController {
 
@@ -47,7 +50,7 @@ class UserController {
     async logout(req, res, next) {
         try {
             const {hash} = req.user;
-            const user = await userService.getUserByHash(hash);
+            const user = await UserRepository.getUserByHash(hash);
 
             await user.update({isOnline: false});
 
@@ -110,9 +113,8 @@ class UserController {
     async uploadPhoto(req, res, next) {
         try {
             const {filename, path} = req.file;
-            const {hash} = req.user;
 
-            await userService.saveUserAvatar(hash, filename);
+            await userService.saveUserAvatar(req.user.hash, filename);
             await SharpHelper.compressPicture(path);
 
             return res.json({filename});

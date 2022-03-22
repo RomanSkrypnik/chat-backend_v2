@@ -6,8 +6,8 @@ const cookieParser = require('cookie-parser');
 const errorMiddleware = require('./src/middlewares/error.middleware');
 const routes = require('./src/routes/');
 const {sequelize} = require('./src/db/models');
-const { createServer } = require("http");
-const { Server } = require("socket.io");
+const {createServer} = require("http");
+const {Server} = require("socket.io");
 const handleSockets = require('./src/utils/socket.utils');
 const bodyParser = require('body-parser');
 
@@ -22,7 +22,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use('/api', routes);
 app.use(errorMiddleware);
-app.use(bodyParser.urlencoded({ extended: true}));
+app.use(bodyParser.urlencoded({extended: true}));
 
 app.use(express.static(__dirname + '/public'));
 app.use('/uploads', express.static('uploads'));

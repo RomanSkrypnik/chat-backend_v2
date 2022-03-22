@@ -1,26 +1,24 @@
 const StatusModel = require('../db').statuses;
-const UserModel = require('../db').users;
 
-const ApiException = require('../exceptions/api.exception');
+const UserRepository = require('../repositories/user.repository');
+const StatusRepository = require('../repositories/status.repository');
+
 const StatusDto = require('../dtos/status.dto');
 
 class StatusController {
 
     async getAllStatuses() {
         const statuses = await StatusModel.findAll();
+
         return statuses.map(status => new StatusDto(status));
     }
 
-    async changeUserStatus(userDto, status) {
-        const foundStatus = await StatusModel.findOne({where: {value: status.value}});
+    async changeUserStatus(userDto, statusVal) {
+        const {id} = await StatusRepository.getByValue(statusVal);
 
-        if (!foundStatus) {
-            ApiException.BadRequest('Status is not found');
-        }
+        const user = await UserRepository.getUserByHash(userDto.hash);
 
-        const user = await UserModel.findOne({where: {hash: userDto.hash}});
-
-        await user.update({statusId: foundStatus.id});
+        await user.update({statusId: id});
     }
 
 }

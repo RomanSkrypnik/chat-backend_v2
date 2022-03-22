@@ -1,7 +1,10 @@
 const messageService = require('../services/message.service');
-const userService = require('../services/user.service');
 const fileService = require('../services/file.service');
 const friendService = require('../services/relation.service');
+
+const UserRepository = require('../repositories/user.repository');
+const RelationRepository = require('../repositories/relation.repository');
+const MessageRepository = require('../repositories/message.repository');
 
 const SharpHelper = require('../helpers/sharp.helper');
 
@@ -10,13 +13,29 @@ class MessageController {
     async messages(req, res, next) {
         try {
             const {hash, offset, limit} = req.body;
-            const friend = await userService.getUserByHash(hash);
 
-            const messages = await messageService.getMessages(req.user, friend, offset, limit, 'DESC');
+            const friend = await UserRepository.getUserByHash(hash);
+
+            const {id} = await RelationRepository(req.user, friend);
+
+            const messages = await MessageRepository.getMessages(id, offset, limit, 'DESC');
 
             return res.json(messages?.reverse());
         } catch (e) {
-            console.log(e);
+            next(e);
+        }
+    }
+
+    async updateMessage(req, res, next) {
+        try {
+            const {messageId, text} = req.body;
+
+            const message = await MessageRepository.getMessageByPk(messageId);
+
+            const updatedMessage = await message.update({text});
+
+            return res.json(updatedMessage);
+        } catch (e) {
             next(e);
         }
     }
@@ -29,7 +48,6 @@ class MessageController {
 
             return res.json(newMessage);
         } catch (e) {
-            console.log(e);
             next(e);
         }
     }

@@ -1,9 +1,13 @@
 const {authorize} = require('@thream/socketio-jwt');
+
 const messageService = require('../services/message.service');
 const statusService = require('../services/status.service');
-const userService = require('../services/user.service');
 const relationService = require('../services/relation.service');
+
 const SocketHelper = require('../helpers/socket.helper');
+
+const UserRepository = require('../repositories/user.repository');
+
 const UserDto = require('../dtos/user.dto');
 
 let sockets = [];
@@ -18,7 +22,7 @@ module.exports = (io) => {
     io.on('connection', async (currentSocket) => {
         console.log('new socket connection');
         const {hash} = currentSocket.decodedToken;
-        const user = await userService.getUserByHash(hash);
+        const user = await UserRepository.getUserByHash(hash);
 
         await user.update({isOnline: true});
         sockets?.push({...currentSocket.decodedToken, id: currentSocket.id});
@@ -27,7 +31,7 @@ module.exports = (io) => {
             try {
                 const friendSocket = SocketHelper.findUser(sockets, friendHash);
 
-                const friend = await userService.getUserByHash(friendHash);
+                const friend = await UserRepository.getUserByHash(friendHash);
                 const friendDto = new UserDto(friend);
 
                 friendSocket && currentSocket.to(friendSocket.id).emit('new-text-message', {
@@ -45,7 +49,7 @@ module.exports = (io) => {
             try {
                 const friendSocket = SocketHelper.findUser(sockets, friendHash);
 
-                const friend = await userService.getUserByHash(friendHash);
+                const friend = await UserRepository.getUserByHash(friendHash);
                 const friendDto = new UserDto(friend);
 
                 friendSocket && currentSocket.to(friendSocket.id).emit('new-media-message', {
@@ -94,7 +98,7 @@ module.exports = (io) => {
         currentSocket.on('disconnect', async () => {
             console.log('disconnect');
             const {hash} = currentSocket.decodedToken;
-            const user = await userService.getUserByHash(hash);
+            const user = await UserRepository.getUserByHash(hash);
 
             await user.update({isOnline: false});
             sockets = sockets.filter(socket => socket.hash !== hash);

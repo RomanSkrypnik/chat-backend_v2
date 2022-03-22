@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
                 }
             });
 
-            Relation.hasOne(models.Muted, {
+            Relation.hasMany(models.Muted, {
                 as: 'muted',
                 foreignKey: {
                     name: 'relationId',

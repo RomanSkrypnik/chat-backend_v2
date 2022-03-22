@@ -1,6 +1,8 @@
 const ApiException = require('../exceptions/api.exception');
+
 const tokenService = require('../services/token.service');
-const userService = require('../services/user.service');
+
+const UserRepository = require('../repositories/user.repository');
 
 module.exports = async function (req, res, next) {
     try {
@@ -22,7 +24,7 @@ module.exports = async function (req, res, next) {
             return next(ApiException.UnathorizedError());
         }
 
-        const user = await userService.getUserByHash(userData.hash);
+        const user = await UserRepository.getUserByHash(userData.hash);
         if (!user) {
             return next(ApiException.UnathorizedError());
         }

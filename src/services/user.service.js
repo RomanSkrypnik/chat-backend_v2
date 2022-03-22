@@ -1,24 +1,24 @@
 const UserModel = require('../db').users;
-const StatusModel = require('../db').statuses;
 
 const tokenService = require('./token.service');
-const messageService = require('./message.service');
 const relationService = require('./relation.service');
+const fsService = require('./fs.service');
+
+const UserRepository = require('../repositories/user.repository');
+const MessageRepository = require('../repositories/message.repository');
 
 const UserDto = require('../dtos/user.dto');
 
 const ApiException = require('../exceptions/api.exception');
 
-const fs = require('fs');
 const bcrypt = require('bcrypt');
 const uuid = require('uuid');
 const crypto = require('crypto');
-const {Op} = require('sequelize');
 
 class UserService {
 
     async registration(data) {
-        const candidate = await UserModel.findOne({where: {email: data.email},});
+        const candidate = await UserRepository.getUserByEmail(data.email);
 
         if (candidate) {
             throw ApiException.BadRequest(`User with such email already exists`);
@@ -30,21 +30,14 @@ class UserService {
 
         const hash = crypto.randomBytes(20).toString('hex');
 
-        await UserModel.create({...data, password, hash, activationLink});
+        await UserRepository.create({...data, password, hash, activationLink});
 
         // await mailService.sendActivationMail(data.email, `${process.env.API_URL}/api/activate/${activationLink}`);
         return {message: "User is successfully registered"};
     }
 
     async login(data) {
-        const user = await UserModel.findOne(
-            {
-                where: {email: data.email},
-                include: {
-                    model: StatusModel,
-                    as: 'status'
-                }
-            });
+        const user = await UserRepository.getUserByEmail(data.email);
 
         if (!user) {
             throw ApiException.BadRequest('User is not found');
@@ -56,9 +49,12 @@ class UserService {
             throw ApiException.BadRequest('Wrong password');
         }
 
-        user.update({isOnline: true});
+        await user.update({isOnline: true});
+
         const userDto = new UserDto(user);
+
         const tokens = tokenService.generateTokens({...userDto});
+
         return {tokens, user: userDto};
     }
 
@@ -85,7 +81,7 @@ class UserService {
             throw ApiException.UnathorizedError();
         }
 
-        const user = await this.getUserByHash(userData.hash);
+        const user = await UserRepository.getUserByHash(userData.hash);
 
         const userDto = new UserDto(user);
 
@@ -95,23 +91,7 @@ class UserService {
     }
 
     async getUsers() {
-        return await UserModel.findAll();
-    }
-
-    async getUserByHash(hash) {
-        const user = await UserModel.findOne({
-            where: {hash},
-            include: {
-                model: StatusModel,
-                as: 'status'
-            }
-        });
-
-        if (!user) {
-            throw ApiException.BadRequest('User is not found');
-        }
-
-        return user;
+        return await UserRepository.getAll();
     }
 
     async getUsersBySearch(currentUser, search) {
@@ -120,54 +100,30 @@ class UserService {
             return await relationService.getFriendsWithMessages(currentUser);
         }
 
-        const field = search.startsWith('@') ? 'username' : 'name';
-
-        const users = await UserModel.findAll({
-            where: {
-                [field]: {
-                    [Op.startsWith]: search,
-                    [Op.not]: currentUser[field]
-                },
-            },
-            include: {
-                model: StatusModel,
-                as: 'status'
-            }
-        });
+        const users = await UserRepository.getUsersBySearch(search, currentUser);
 
         return Promise.all(users.map(async user => {
-            const userMessages = await messageService.getMessages(user, currentUser, 0, 40, 'DESC');
-
-            const messages = userMessages ? userMessages.reverse() : [];
-
+            const messages = await MessageRepository.getMessages(user, currentUser, 0, 40, 'DESC');
             return {friend: new UserDto(user), messages};
         }));
     }
 
     async saveUserAvatar(hash, filename) {
-        const currentUser = await this.getUserByHash(hash);
+        const user = await UserRepository.getUserByHash(hash);
 
-        const url = './public/img/avatars/' + currentUser.pictureUrl;
+        await fsService.deleteOldAvatar(user.pictureUrl);
 
-        if (currentUser.pictureUrl && fs.existsSync(url)) {
-            fs.unlink(url, (err) => {
-                if (err) throw err;
-
-                console.log('File is deleted!')
-            });
-        }
-
-        await currentUser.update({pictureUrl: filename});
+        await user.update({pictureUrl: filename});
     }
 
     async comparePasswords(hash, enteredPassword) {
-        const {password} = await this.getUserByHash(hash);
+        const {password} = await UserRepository.getUserByHash(hash);
 
         return await bcrypt.compare(enteredPassword, password);
     }
 
     async updatePersonalInfo(hash, data) {
-        const user = await this.getUserByHash(hash);
+        const user = await UserRepository.getUserByHash(hash);
 
         let fields = data;
 

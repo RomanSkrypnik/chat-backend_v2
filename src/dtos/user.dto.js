@@ -9,6 +9,7 @@ module.exports = class UserDto {
     username;
     isActivated;
     pictureUrl;
+    isMuted;
 
     constructor(model) {
         this.id = model.id;
@@ -20,6 +21,7 @@ module.exports = class UserDto {
         this.pictureUrl = model.pictureUrl;
         this.isActivated = model.isActivated;
         this.status = model.status ? new StatusDto(model.status) : null;
+        this.isMuted = model.isMuted ?? false;
     }
 
 };
