@@ -13,7 +13,6 @@ class UserController {
 
             return res.json(users);
         } catch (e) {
-            console.log(e);
             next(e);
         }
     }
@@ -40,7 +39,6 @@ class UserController {
 
             res.json(user);
         } catch (e) {
-            console.log(e);
             next(e);
         }
     }

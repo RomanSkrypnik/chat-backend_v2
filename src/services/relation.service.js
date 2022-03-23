@@ -1,5 +1,3 @@
-const RelationModel = require('../db').relations;
-
 const RelationRepository = require('../repositories/relation.repository');
 const UserRepository = require('../repositories/user.repository');
 const MessageRepository = require('../repositories/message.repository');
@@ -24,17 +22,19 @@ class RelationService {
     async getFriendWithMessages(user, hash) {
         const friend = await UserRepository.getUserByHash(hash);
 
-        const {id} = await RelationRepository.getRelation(user, friend);
+        const relation = await RelationRepository.getRelation(user, friend);
 
-        if (!id) {
+        if (!relation) {
             return ApiExceptions.BadRequest('Relation is not found');
         }
 
-        const friendMessages = await MessageRepository.getMessages(id, 0, 40, 'DESC');
+        const isMuted = this.checkIfMuted(relation.muted, user.id);
+
+        const friendMessages = await MessageRepository.getMessages(relation.id, 0, 40, 'DESC');
 
         const messages = friendMessages ? friendMessages.reverse() : [];
 
-        return {friend: new UserDto(friend), messages};
+        return {friend: new UserDto({...friend.dataValues, isMuted}), messages};
     }
 
     async removeFriend(user, hash) {
@@ -49,12 +49,7 @@ class RelationService {
         const friendsRelations = await RelationRepository.getUserRelations(user);
 
         return friendsRelations.map(relation => {
-            const mutedRelations = relation.muted;
-            let isMuted = false;
-
-            if (mutedRelations.length > 0) {
-                isMuted = mutedRelations.some(relation => relation.userId === user.id);
-            }
+            const isMuted = this.checkIfMuted(relation.muted, user.id);
 
             if (relation.sender.id === user.id) {
                 return {...relation.receiver.dataValues, relationId: relation.id, isMuted};
@@ -72,6 +67,10 @@ class RelationService {
             return await RelationRepository.create({user1Id: user.id, user2Id: friend.id});
         }
         return relation;
+    }
+
+    checkIfMuted(mutedRelations, userId) {
+        return mutedRelations.some(mutedRelation => mutedRelation.userId === userId);
     }
 }
 

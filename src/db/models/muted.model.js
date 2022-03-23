@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
 
             Muted.belongsTo(models.Relation, {
                 foreignKey: 'relationId',
-                as: 'muted',
+                as: 'relation',
                 onDelete: 'cascade'
             });
 

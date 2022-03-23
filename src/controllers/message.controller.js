@@ -46,8 +46,6 @@ class MessageController {
 
             const newMessage = await messageService.createTextMessage(req.user, hash, text);
 
-            console.log(newMessage);
-
             return res.json(newMessage);
         } catch (e) {
             next(e);

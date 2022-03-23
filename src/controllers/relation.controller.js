@@ -5,7 +5,6 @@ class RelationController {
     async friends(req, res, next) {
         try {
             const friends = await relationService.getFriendsWithMessages(req.user);
-
             return res.json(friends);
         } catch (e) {
             next(e);

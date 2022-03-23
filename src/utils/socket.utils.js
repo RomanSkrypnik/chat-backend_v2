@@ -6,6 +6,7 @@ const relationService = require('../services/relation.service');
 const socketService = require('../services/socket.service');
 
 const UserRepository = require('../repositories/user.repository');
+const RelationRepository = require('../repositories/relation.repository');
 
 const UserDto = require('../dtos/user.dto');
 
@@ -26,37 +27,43 @@ module.exports = (io) => {
         await user.update({isOnline: true});
         sockets?.push({...currentSocket.decodedToken, id: currentSocket.id});
 
-        currentSocket.on('send-text-message', async ({friendHash, message}) => {
+        currentSocket.on('send-text-message', async ({friend, message}) => {
             try {
-                const friendSocket = socketService.findUser(sockets, friendHash);
+                const friendSocket = socketService.findUser(sockets, friend.hash);
 
-                const friend = await UserRepository.getUserByHash(friendHash);
-                const friendDto = new UserDto(friend);
+                const user = currentSocket.decodedToken;
+
+                const {muted} = await RelationRepository.getRelation(user, friend);
+
+                const isMuted = relationService.checkIfMuted(muted, friend.id);
 
                 friendSocket && currentSocket.to(friendSocket.id).emit('new-text-message', {
-                    friend: currentSocket.decodedToken,
+                    friend: {...user, isMuted},
                     newMessage: message
                 });
 
-                currentSocket.emit('new-text-message', {friend: friendDto, newMessage: message});
+                currentSocket.emit('new-text-message', {friend, newMessage: message});
             } catch (e) {
                 console.log(e);
             }
         });
 
-        currentSocket.on('send-media-message', async ({friendHash, messages}) => {
+        currentSocket.on('send-media-message', async ({friend, messages}) => {
             try {
-                const friendSocket = socketService.findUser(sockets, friendHash);
+                const friendSocket = socketService.findUser(sockets, friend.hash);
 
-                const friend = await UserRepository.getUserByHash(friendHash);
-                const friendDto = new UserDto(friend);
+                const user = currentSocket.decodedToken;
+
+                const {muted} = await RelationRepository.getRelation(user, friend);
+
+                const isMuted = relationService.checkIfMuted(muted, friend.id);
 
                 friendSocket && currentSocket.to(friendSocket.id).emit('new-media-message', {
-                    friend: currentSocket.decodedToken,
+                    friend: {...currentSocket.decodedToken, isMuted},
                     newMessages: messages
                 });
 
-                currentSocket.emit('new-media-message', {friend: friendDto, newMessages: messages});
+                currentSocket.emit('new-media-message', {friend: friend, newMessages: messages});
             } catch (e) {
                 console.log(e);
             }
@@ -64,7 +71,7 @@ module.exports = (io) => {
 
         currentSocket.on('change-status', async ({status}) => {
             try {
-                await statusService.changeUserStatus(currentSocket.decodedToken, status);
+                await statusService.changeUserStatus(currentSocket.decodedToken, status.value);
                 const friends = await relationService.getFriends(currentSocket.decodedToken);
 
                 const onlineFriends = friends.filter(friend => friend.isOnline);
