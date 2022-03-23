@@ -1,6 +1,6 @@
 const userService = require('../services/user.service');
 
-const SharpHelper = require('../helpers/sharp.helper');
+const sharpService = require('../services/sharp.service');
 
 
 class UserController {
@@ -23,7 +23,7 @@ class UserController {
             const {filename, path} = req.file;
 
             await userService.saveUserAvatar(req.user.hash, filename);
-            await SharpHelper.compressPicture(path);
+            await sharpService.compressPicture(path);
 
             return res.json({filename});
         } catch (e) {

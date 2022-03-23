@@ -6,7 +6,7 @@ const UserRepository = require('../repositories/user.repository');
 const RelationRepository = require('../repositories/relation.repository');
 const MessageRepository = require('../repositories/message.repository');
 
-const SharpHelper = require('../helpers/sharp.helper');
+const sharpService = require('../services/sharp.service');
 
 class MessageController {
 
@@ -59,7 +59,7 @@ class MessageController {
             const {hash, text} = req.body;
 
             for (const file of req.files) {
-                await SharpHelper.compressPicture('./public/messages/' + file.filename);
+                await sharpService.compressPicture('./public/messages/' + file.filename);
             }
 
             const {id} = await friendService.getFriendRelation(req.user, hash);

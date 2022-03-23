@@ -1,11 +1,12 @@
 const sharp = require('sharp');
 const fs = require('fs');
+
 sharp.cache(false);
 
-module.exports = class SharpHelper {
+class SharpService {
 
-    static async compressPicture(path) {
-        let {width, height} = await SharpHelper.getMetaData(path);
+    async compressPicture(path) {
+        let {width, height} = await this.getMetaData(path);
 
         const aspectRadio = width / height;
 
@@ -25,7 +26,9 @@ module.exports = class SharpHelper {
             }));
     }
 
-    static async getMetaData(path) {
+    async getMetaData(path) {
         return await sharp(path).metadata();
     }
-};
+}
+
+module.exports = new SharpService();

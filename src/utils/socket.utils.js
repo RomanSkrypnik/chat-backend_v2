@@ -3,8 +3,7 @@ const {authorize} = require('@thream/socketio-jwt');
 const messageService = require('../services/message.service');
 const statusService = require('../services/status.service');
 const relationService = require('../services/relation.service');
-
-const SocketHelper = require('../helpers/socket.helper');
+const socketService = require('../services/socket.service');
 
 const UserRepository = require('../repositories/user.repository');
 
@@ -29,7 +28,7 @@ module.exports = (io) => {
 
         currentSocket.on('send-text-message', async ({friendHash, message}) => {
             try {
-                const friendSocket = SocketHelper.findUser(sockets, friendHash);
+                const friendSocket = socketService.findUser(sockets, friendHash);
 
                 const friend = await UserRepository.getUserByHash(friendHash);
                 const friendDto = new UserDto(friend);
@@ -47,7 +46,7 @@ module.exports = (io) => {
 
         currentSocket.on('send-media-message', async ({friendHash, messages}) => {
             try {
-                const friendSocket = SocketHelper.findUser(sockets, friendHash);
+                const friendSocket = socketService.findUser(sockets, friendHash);
 
                 const friend = await UserRepository.getUserByHash(friendHash);
                 const friendDto = new UserDto(friend);
@@ -69,7 +68,7 @@ module.exports = (io) => {
                 const friends = await relationService.getFriends(currentSocket.decodedToken);
 
                 const onlineFriends = friends.filter(friend => friend.isOnline);
-                const friendSockets = SocketHelper.getFriendsSockets(sockets, onlineFriends);
+                const friendSockets = socketService.getFriendsSockets(sockets, onlineFriends);
 
                 friendSockets.forEach(friendSockets => {
                     currentSocket.to(friendSockets.id).emit('new-status', {
@@ -86,7 +85,7 @@ module.exports = (io) => {
             try {
                 await messageService.readMessage(id);
 
-                const friendSocket = SocketHelper.findUser(sockets, friendHash);
+                const friendSocket = socketService.findUser(sockets, friendHash);
 
                 friendSocket && currentSocket.to(friendSocket.id).emit('message-is-read', {id, hash: currentHash});
                 currentSocket.emit('message-is-read', {id, hash: friendHash});
