@@ -15,7 +15,9 @@ class RelationService {
 
         return Promise.all(friends.map(async friend => {
             const friendMessages = await MessageRepository.getMessages(friend.relationId, 0, 40, 'DESC');
-            return {friend: new UserDto(friend), messages: friendMessages};
+            const messages = friendMessages ? friendMessages.reverse() : [];
+
+            return {friend: new UserDto(friend), messages};
         }));
     }
 

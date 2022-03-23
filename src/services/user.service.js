@@ -90,10 +90,6 @@ class UserService {
         return {...tokens, user: userDto};
     }
 
-    async getUsers() {
-        return await UserRepository.getAll();
-    }
-
     async getUsersBySearch(currentUser, search) {
 
         if (!search) {

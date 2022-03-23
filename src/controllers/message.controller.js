@@ -16,7 +16,7 @@ class MessageController {
 
             const friend = await UserRepository.getUserByHash(hash);
 
-            const {id} = await RelationRepository(req.user, friend);
+            const {id} = await RelationRepository.getRelation(req.user, friend);
 
             const messages = await MessageRepository.getMessages(id, offset, limit, 'DESC');
 
@@ -45,6 +45,8 @@ class MessageController {
             const {hash, text} = req.body;
 
             const newMessage = await messageService.createTextMessage(req.user, hash, text);
+
+            console.log(newMessage);
 
             return res.json(newMessage);
         } catch (e) {
