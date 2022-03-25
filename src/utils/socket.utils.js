@@ -6,9 +6,8 @@ const relationService = require('../services/relation.service');
 const socketService = require('../services/socket.service');
 
 const UserRepository = require('../repositories/user.repository');
-const RelationRepository = require('../repositories/relation.repository');
 
-const UserDto = require('../dtos/user.dto');
+const userFacade = require('../facades/user.facade');
 
 let sockets = [];
 
@@ -31,14 +30,12 @@ module.exports = (io) => {
             try {
                 const friendSocket = socketService.findUser(sockets, friend.hash);
 
-                const user = currentSocket.decodedToken;
+                const sender = currentSocket.decodedToken;
 
-                const {muted} = await RelationRepository.getRelation(user, friend);
-
-                const isMuted = relationService.checkIfMuted(muted, friend.id);
+                const user = await userFacade.getUser(friend, sender.hash);
 
                 friendSocket && currentSocket.to(friendSocket.id).emit('new-text-message', {
-                    friend: {...user, isMuted},
+                    friend: user,
                     newMessage: message
                 });
 
@@ -52,14 +49,12 @@ module.exports = (io) => {
             try {
                 const friendSocket = socketService.findUser(sockets, friend.hash);
 
-                const user = currentSocket.decodedToken;
+                const sender = currentSocket.decodedToken;
 
-                const {muted} = await RelationRepository.getRelation(user, friend);
-
-                const isMuted = relationService.checkIfMuted(muted, friend.id);
+                const user = await userFacade.getUser(sender, friend.hash);
 
                 friendSocket && currentSocket.to(friendSocket.id).emit('new-media-message', {
-                    friend: {...currentSocket.decodedToken, isMuted},
+                    friend: user,
                     newMessages: messages
                 });
 
@@ -72,7 +67,7 @@ module.exports = (io) => {
         currentSocket.on('change-status', async ({status}) => {
             try {
                 await statusService.changeUserStatus(currentSocket.decodedToken, status.value);
-                const friends = await relationService.getFriends(currentSocket.decodedToken);
+                const friends = await userFacade.getUsers(currentSocket.decodedToken);
 
                 const onlineFriends = friends.filter(friend => friend.isOnline);
                 const friendSockets = socketService.getFriendsSockets(sockets, onlineFriends);

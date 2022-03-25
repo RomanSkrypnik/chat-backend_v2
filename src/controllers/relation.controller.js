@@ -1,10 +1,12 @@
-const relationService = require('../services/relation.service');
+const relationService = require("../services/relation.service");
+
+const userFacade = require('../facades/user.facade');
 
 class RelationController {
 
     async friends(req, res, next) {
         try {
-            const friends = await relationService.getFriendsWithMessages(req.user);
+            const friends = await userFacade.getUsersWithMessages(req.user);
             return res.json(friends);
         } catch (e) {
             next(e);
@@ -15,7 +17,7 @@ class RelationController {
         try {
             const {hash} = req.body;
 
-            const user = await relationService.getFriendWithMessages(req.user, hash);
+            const user = await userFacade.getUserWithMessages(req.user, hash);
 
             return res.json(user);
         } catch (e) {
