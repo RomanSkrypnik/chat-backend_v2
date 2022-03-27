@@ -4,6 +4,7 @@ const friendRoutes = require('./relation.route');
 const messageRoutes = require('./message.route');
 const userRoutes = require('./user.route');
 const mutedRoutes = require('./muted.route');
+const blockedRoutes = require('./blocked.route');
 
 module.exports = [
     authRoutes,
@@ -11,5 +12,6 @@ module.exports = [
     friendRoutes,
     messageRoutes,
     userRoutes,
-    mutedRoutes
+    mutedRoutes,
+    blockedRoutes
 ];

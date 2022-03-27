@@ -10,6 +10,8 @@ module.exports = class UserDto {
     isActivated;
     pictureUrl;
     isMuted;
+    isBlocked;
+    isBlockedByMe;
 
     constructor(model) {
         this.id = model.id;
@@ -22,6 +24,8 @@ module.exports = class UserDto {
         this.isActivated = model.isActivated;
         this.status = model.status ? new StatusDto(model.status) : null;
         this.isMuted = model.isMuted ?? false;
+        this.isBlocked = model.isBlocked ?? false;
+        this.isBlockedByMe = model.isBlockedByMe ?? false;
     }
 
 };

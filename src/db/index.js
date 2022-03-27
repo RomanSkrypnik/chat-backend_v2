@@ -12,4 +12,5 @@ module.exports = {
     files: db.File,
     starred: db.Starred,
     muted: db.Muted,
+    blocked: db.Blocked,
 };

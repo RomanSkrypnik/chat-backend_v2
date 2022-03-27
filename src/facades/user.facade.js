@@ -12,7 +12,17 @@ class UserFacade {
 
     async getUsersWithMessages(user) {
         const friends = await this._getFriends(user);
-        return Promise.all(friends.map(async friend => await this._getFormattedFriend(user, friend)));
+        return Promise.all(friends.map(async friend => {
+            const friendMessages = await MessageRepository.getMessages(friend.relationId, 0, 40, 'DESC');
+
+            const messages = friendMessages ? friendMessages.reverse() : [];
+
+            return {friend: new UserDto(friend), messages};
+        }));
+    }
+
+    async getUsers(user) {
+        return await this._getFriends(user);
     }
 
     async getUser(user, hash) {
@@ -24,55 +34,39 @@ class UserFacade {
             return ApiException.BadRequest('Relation is not found');
         }
 
-        const isMuted = this._checkIfMuted(relation.muted, user.id);
+        const isMuted = this._checkRelationsIf(relation.muted, user.id);
+        const isBlockedByMe = !!this._checkRelationsIf(relation.blocked, user.id);
+        const isBlocked = isBlockedByMe ? isBlockedByMe : !!this._checkRelationsIf(relation.blocked, friend.id);
 
-        return new UserDto({...friend.dataValues, isMuted});
-    }
-
-    async getUsers(user) {
-        return await this._getFriends(user);
+        return {...friend.dataValues, relationId: relation.id, isMuted, isBlockedByMe, isBlocked};
     }
 
     async getUserWithMessages(user, hash) {
-        const friend = await UserRepository.getUserByHash(hash);
+        const friend = await this.getUser(user, hash);
 
-        const relation = await RelationRepository.getRelation(user, friend);
-
-        if (!relation) {
-            return ApiException.BadRequest('Relation is not found');
-        }
-
-        return this._getFormattedFriend(user, {...friend.dataValues, muted: relation.muted, relationId: relation.id});
-    }
-
-
-    async _getFormattedFriend(user, friend) {
-        const {relationId} = friend;
-
-        const isMuted = this._checkIfMuted(friend.muted, user.id);
-
-        const friendMessages = await MessageRepository.getMessages(relationId, 0, 40, 'DESC');
+        const friendMessages = await MessageRepository.getMessages(friend.relationId, 0, 40, 'DESC');
 
         const messages = friendMessages ? friendMessages.reverse() : [];
 
-        return {friend: new UserDto({...friend, isMuted}), messages};
+        return {friend: new UserDto(friend), messages};
     }
 
     async _getFriends(user) {
         const relations = await RelationRepository.getUserRelations(user);
 
         return relations.map(relation => {
-            const {sender} = relation;
+            const friend = relation.sender.id === user.id ? relation.receiver : relation.sender;
 
-            if (sender.id === user.id) {
-                return {...relation.receiver.dataValues, relationId: relation.id, muted: relation.muted}
-            }
-            return {...relation.sender.dataValues, relationId: relation.id, muted: relation.muted}
+            const isMuted = this._checkRelationsIf(relation.muted, user.id);
+            const isBlockedByMe = !!this._checkRelationsIf(relation.blocked, user.id);
+            const isBlocked = isBlockedByMe ? isBlockedByMe : !!this._checkRelationsIf(relation.blocked, friend.id);
+
+            return {...friend.dataValues, relationId: relation.id, isMuted, isBlockedByMe, isBlocked};
         });
     }
 
-    _checkIfMuted(mutedRelations, userId) {
-        return mutedRelations.some(mutedRelation => mutedRelation.userId === userId);
+    _checkRelationsIf(relations, userId) {
+        return relations.some(relation => relation.userId === userId);
     }
 
 }

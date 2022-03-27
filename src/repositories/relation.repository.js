@@ -2,6 +2,7 @@ const RelationModel = require('../db').relations;
 const UserModel = require('../db').users;
 const StatusModel = require('../db').statuses;
 const MutedModel = require('../db').muted;
+const BlockedModel = require('../db').blocked;
 
 const {Op} = require('sequelize');
 
@@ -15,6 +16,7 @@ module.exports = class RelationRepository {
                 [Op.or]: condition,
             },
             include: [
+
                 {
                     model: UserModel,
                     as: 'sender',
@@ -24,6 +26,7 @@ module.exports = class RelationRepository {
                         as: 'status'
                     }
                 },
+
                 {
                     model: UserModel,
                     as: 'receiver',
@@ -33,9 +36,15 @@ module.exports = class RelationRepository {
                         as: 'status',
                     }
                 },
+
                 {
                     model: MutedModel,
                     as: 'muted',
+                },
+
+                {
+                    model: BlockedModel,
+                    as: 'blocked'
                 }
             ]
         });
@@ -59,6 +68,7 @@ module.exports = class RelationRepository {
                         as: 'status'
                     }
                 },
+
                 {
                     model: UserModel,
                     as: 'receiver',
@@ -68,9 +78,15 @@ module.exports = class RelationRepository {
                         as: 'status',
                     }
                 },
+
                 {
                     model: MutedModel,
                     as: 'muted',
+                },
+
+                {
+                    model: BlockedModel,
+                    as: 'blocked',
                 }
             ]
         });

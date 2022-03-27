@@ -3,16 +3,16 @@ const {Model} = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
 
-    class Muted extends Model {
+    class Blocked extends Model {
         static associate(models) {
 
-            Muted.belongsTo(models.Relation, {
+            Blocked.belongsTo(models.Relation, {
                 foreignKey: 'relationId',
                 as: 'relation',
                 onDelete: 'cascade'
             });
 
-            Muted.belongsTo(models.User, {
+            Blocked.belongsTo(models.User, {
                 foreignKey: 'userId',
                 as: 'user',
                 onDelete: 'cascade'
@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     }
 
 
-    Muted.init({
+    Blocked.init({
 
             id: {
                 type: DataTypes.INTEGER(11).UNSIGNED,
@@ -49,10 +49,10 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
             sequelize,
-            modelName: 'Muted',
-            tableName: 'muted_relations',
+            modelName: 'Blocked',
+            tableName: 'blocked_relations',
             timestamps: false,
         });
 
-    return Muted;
+    return Blocked;
 };
