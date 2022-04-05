@@ -107,7 +107,9 @@ class UserService {
     async saveUserAvatar(hash, filename) {
         const user = await UserRepository.getUserByHash(hash);
 
-        await fsService.deleteOldAvatar(user.pictureUrl);
+        if (user.pictureUrl) {
+            await fsService.deleteOldAvatar(user.pictureUrl);
+        }
 
         await user.update({pictureUrl: filename});
     }

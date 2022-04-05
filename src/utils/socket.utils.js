@@ -32,7 +32,7 @@ module.exports = (io) => {
 
                 const sender = currentSocket.decodedToken;
 
-                const user = await userFacade.getUser(friend, sender.hash);
+                const user = await userFacade.getUser(sender, friend.hash);
 
                 friendSocket && currentSocket.to(friendSocket.id).emit('new-text-message', {
                     friend: user,

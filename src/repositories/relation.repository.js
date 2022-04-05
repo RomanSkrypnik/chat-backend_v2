@@ -51,6 +51,7 @@ module.exports = class RelationRepository {
     }
 
     static async getRelation(firstUser, secondUser) {
+
         const condition = [
             {user1Id: firstUser.id, user2Id: secondUser.id},
             {user1Id: secondUser.id, user2Id: firstUser.id}

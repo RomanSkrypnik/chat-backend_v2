@@ -14,5 +14,6 @@ router.post('/send-media-message', AuthMiddleware, fileUpload.array('media'), me
 router.post('/send-voice-message', AuthMiddleware, voiceUpload.single('voice'), messageController.sendVoiceMessage);
 router.post('/read-message', AuthMiddleware, messageController.readMessage);
 router.post('/stare-message', AuthMiddleware, messageController.stareMessage);
+router.post('/clear-chat', AuthMiddleware, messageController.clearMessages);
 
 module.exports = router;

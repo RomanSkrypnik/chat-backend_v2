@@ -8,7 +8,7 @@ const ApiException = require('../exceptions/api.exception');
 
 module.exports = class MessageRepository {
 
-    static async createMessage(relationId, userId, text) {
+    static async createMessage(relationId, userId, text = '') {
         return MessageModel.create({
             text,
             relationId,
@@ -17,7 +17,7 @@ module.exports = class MessageRepository {
     }
 
     static async getMessageByPk(id) {
-        const message = MessageModel.findByPk(id, {
+        const message = await MessageModel.findByPk(id, {
                 attributes: ['id', 'text', 'createdAt', 'updatedAt'],
                 include: [
                     {
@@ -39,10 +39,6 @@ module.exports = class MessageRepository {
         return message;
     }
 
-    static async getMessageByPkWithFiles() {
-
-    }
-
     static async getMessages(relationId, offset, limit, order = 'ASC') {
         return MessageModel.findAll({
             where: {relationId},
@@ -62,6 +58,10 @@ module.exports = class MessageRepository {
             limit,
             offset,
         });
+    }
+
+    static async destroyAllMessagesFromRelation(relationId) {
+        return await MessageModel.destroy({where: {relationId}});
     }
 
 };

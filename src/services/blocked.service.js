@@ -34,7 +34,7 @@ class BlockedService {
 
         await BlockedRepository.destroy(user.id, relation.id);
 
-        const anyBlockedRelation = !!await BlockedRepository.getOne(user.id, relation.id);
+        const anyBlockedRelation = !!await BlockedRepository.getOne(friend.id, relation.id);
 
         return new UserDto({...friend, isBlocked: anyBlockedRelation, isBlockedByMe: false});
     }

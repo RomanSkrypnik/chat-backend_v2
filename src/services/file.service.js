@@ -5,7 +5,6 @@ const UserModel = require('../db').users;
 class FileService {
 
     async createMediaFiles(files, senderId, relationId, text) {
-
         if (files.length > 5) {
             const nestedFiles = this._getNestedFiles(files);
             let messageText = text;
@@ -68,6 +67,17 @@ class FileService {
 
             return [message];
         }
+    }
+
+    async createMediaFile(file, messageId) {
+
+        const data = {
+            originalName: file.originalname,
+            uniqueName: file.filename,
+            messageId
+        };
+
+        return FileModel.create(data);
     }
 
     _getNestedFiles(files) {

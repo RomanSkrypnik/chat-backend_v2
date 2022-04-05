@@ -8,7 +8,7 @@ const ApiExceptions = require('../exceptions/api.exception');
 
 class MessageService {
 
-    async createTextMessage(user, hash, text) {
+    async createMessage(user, hash, text) {
         const receiver = await UserRepository.getUserByHash(hash);
 
         const relation = await RelationRepository.getRelationOrCreate(user, receiver);
@@ -40,6 +40,18 @@ class MessageService {
         }
 
         return await StarredModel.create({userId: user.id, messageId});
+    }
+
+    async clearChat(user, hash) {
+        const friend = await UserRepository.getUserByHash(hash);
+
+        const relation = await RelationRepository.getRelation(user, friend);
+
+        if (!relation) {
+            throw ApiExceptions.BadRequest('relation is not found');
+        }
+
+        return await MessageRepository.destroyAllMessagesFromRelation(relation.id);
     }
 
 }

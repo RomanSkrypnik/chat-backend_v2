@@ -44,7 +44,7 @@ class MessageController {
         try {
             const {hash, text} = req.body;
 
-            const newMessage = await messageService.createTextMessage(req.user, hash, text);
+            const newMessage = await messageService.createMessage(req.user, hash, text);
 
             return res.json(newMessage);
         } catch (e) {
@@ -72,8 +72,15 @@ class MessageController {
 
     async sendVoiceMessage(req, res, next) {
         try {
+            const {hash} = req.body;
 
+            const {id} = await messageService.createMessage(req.user, hash);
 
+            await fileService.createMediaFile(req.file, id);
+
+            const message = await MessageRepository.getMessageByPk(id);
+
+            return res.json(message);
         } catch (e) {
             next(e);
         }
@@ -98,6 +105,18 @@ class MessageController {
             const starred = await messageService.stareMessage(req.user, messageId);
 
             return res.json(starred);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async clearMessages(req, res, next) {
+        try {
+            const {hash} = req.body;
+
+            const success = await messageService.clearChat(req.user, hash);
+
+            return res.json({success: !!success});
         } catch (e) {
             next(e);
         }
